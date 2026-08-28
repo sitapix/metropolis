@@ -26704,6 +26704,7 @@ layers = (
 {
 components = (
 {
+alignment = -1;
 name = six;
 transform = "{-1, 0, 0, -1, 647, 687}";
 }
@@ -26714,6 +26715,7 @@ width = 611;
 {
 components = (
 {
+alignment = -1;
 name = six;
 transform = "{-1, 0, 0, -1, 639, 687}";
 }
@@ -26724,6 +26726,7 @@ width = 604;
 {
 components = (
 {
+alignment = -1;
 name = six;
 transform = "{-1, 0, 0, -1, 713, 687}";
 }
@@ -34947,6 +34950,7 @@ layers = (
 {
 components = (
 {
+alignment = -1;
 name = tilde;
 transform = "{1, 0, 0, 1, -27, -275}";
 }
@@ -34957,6 +34961,7 @@ width = 456;
 {
 components = (
 {
+alignment = -1;
 name = tilde;
 transform = "{1, 0, 0, 1, -23, -275}";
 }
@@ -34967,6 +34972,7 @@ width = 480;
 {
 components = (
 {
+alignment = -1;
 name = tilde;
 transform = "{1, 0, 0, 1, -22, -281}";
 }
@@ -43786,6 +43792,7 @@ layers = (
 {
 components = (
 {
+alignment = -1;
 name = six;
 transform = "{-1, 0, 0, -1, 673, 687}";
 }
@@ -43796,6 +43803,7 @@ width = 672;
 {
 components = (
 {
+alignment = -1;
 name = six;
 transform = "{-1, 0, 0, -1, 673, 687}";
 }
@@ -43806,6 +43814,7 @@ width = 684;
 {
 components = (
 {
+alignment = -1;
 name = six;
 transform = "{-1, 0, 0, -1, 737, 687}";
 }

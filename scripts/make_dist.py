@@ -30,14 +30,21 @@ def commit_epoch():
 
 
 def members(paths):
+    """Every file under `paths`, sorted, skipping anything that starts with a dot.
+
+    macOS leaves .DS_Store around, and nothing hidden belongs in a published
+    archive. Without this the archives are clean only because ARCHIVES happens
+    to name subdirectories rather than fonts/ itself.
+    """
     for path in paths:
         if os.path.isfile(path):
             yield path
         else:
             for root, dirs, files in os.walk(path):
-                dirs.sort()
+                dirs[:] = sorted(d for d in dirs if not d.startswith("."))
                 for name in sorted(files):
-                    yield os.path.join(root, name)
+                    if not name.startswith("."):
+                        yield os.path.join(root, name)
 
 
 def build(version, suffix, paths, date_time):

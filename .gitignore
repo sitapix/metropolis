@@ -12,3 +12,4 @@ __pycache__/
 
 # Glyphs autosave
 *(Autosaved).glyphs
+dist/

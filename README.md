@@ -33,8 +33,10 @@ There is also an [interactive specimen](#specimen) with a weight slider.
 
 ## Installation
 
-Nothing to compile. The built fonts are committed, so download or clone the
-repository and take the files you want out of `fonts/`.
+Nothing to compile. Take a zip from
+[Releases](https://github.com/sitapix/metropolis/releases) — `-desktop` is the
+OTFs, `-web` is the WOFF2, and the unsuffixed one is everything — or clone the
+repository, where the built fonts are committed under `fonts/`.
 
 ```sh
 git clone https://github.com/sitapix/metropolis.git
@@ -158,7 +160,8 @@ make check    # assert the metadata that upstream got wrong stays fixed
 
 The `static`, `ttf`, `variable` and `webfonts` targets each build one output
 kind. `make specimen` and `make specimen-image` build the specimen site and the
-README image. `make clean` removes `fonts/`, the built site, and fontmake's
+README image. `make dist VERSION=1.0.0` packs the release archives into `dist/`.
+`make clean` removes `fonts/`, the built site, `dist/`, and fontmake's
 intermediates.
 
 `scripts/check_fonts.py` runs over every built file and asserts: a 1210 line
@@ -175,6 +178,10 @@ values and the `ital` axis that fontmake omits, and `make webfonts` calls
 `documentation/specimen-{light,dark}.svg`. HarfBuzz shapes the text, so the
 `tnum` and `ss01` rows show the font's own features rather than a mock-up, and
 every outline is written out as a path, so the image needs no webfont.
+
+`scripts/make_dist.py` packs the release archives. Entries are sorted,
+permissions are fixed, and timestamps come from `SOURCE_DATE_EPOCH` or the
+current commit, so building a tag twice produces the same bytes.
 
 `scripts/add_tabular_figures.py` is not part of `make`: it writes the `.tnum`
 glyphs into `sources/` rather than building from them. It has already been run

@@ -2,12 +2,13 @@ VENV := .venv/bin
 ROMAN  := sources/Metropolis.glyphs
 ITALIC := sources/Metropolis-Italic.glyphs
 
-.PHONY: all static ttf variable webfonts specimen check clean venv
+.PHONY: all static ttf variable webfonts specimen specimen-image check clean venv
 
 all: static ttf variable webfonts
 
 venv:
-	python3 -m venv .venv && $(VENV)/pip install -q --upgrade pip && $(VENV)/pip install -q fontmake brotli
+	uv venv
+	uv pip install -q -r requirements.txt
 
 static:
 	@mkdir -p fonts/otf
@@ -29,8 +30,17 @@ variable:
 webfonts:
 	$(VENV)/python scripts/make_webfonts.py
 
+specimen-image:
+	$(VENV)/python scripts/make_specimen_image.py
+
+specimen:
+	@mkdir -p specimen/src/fonts
+	cp 'fonts/webfonts/Metropolis[wght].woff2' 'fonts/webfonts/Metropolis-Italic[wght].woff2' specimen/src/fonts/
+	cd specimen && bun install --frozen-lockfile && bun run build
+	@echo "built specimen/_site/index.html"
+
 check:
 	$(VENV)/python scripts/check_fonts.py
 
 clean:
-	rm -rf fonts master_ufo instance_ufo variable_ttf
+	rm -rf fonts master_ufo instance_ufo variable_ttf specimen/_site

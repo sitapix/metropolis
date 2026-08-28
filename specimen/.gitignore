@@ -1,0 +1,12 @@
+.DS_Store
+_site/
+node_modules/
+src/_includes/.webpack
+
+# Copied in by `make specimen`.
+src/fonts/*.woff2
+
+# Written by `yarn fontdata`. Only fontdata.json is committed, because its
+# order and its style labels are hand-edited and the generator carries them.
+src/_data/fonts/
+src/css/fonts.css

@@ -1,30 +1,66 @@
 name: build
 
+# Only the inputs to the fonts. A change to the specimen, the README or the
+# documentation images does not need an 82-second fontmake run.
 on:
   push:
     branches: [main]
+    paths:
+      - "sources/**"
+      - "scripts/**"
+      - "fonts/**"
+      - "documentation/**"
+      - "Makefile"
+      - "requirements.txt"
+      - ".github/workflows/build.yml"
   pull_request:
+    paths:
+      - "sources/**"
+      - "scripts/**"
+      - "fonts/**"
+      - "documentation/**"
+      - "Makefile"
+      - "requirements.txt"
+      - ".github/workflows/build.yml"
   workflow_dispatch:
+
+# Supersede a running build when a branch is pushed again, but never abandon a
+# run on main -- that one produces the artifact.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: requirements.txt
 
       - name: Install toolchain
         run: |
-          python -m venv .venv
-          .venv/bin/pip install --upgrade pip
-          .venv/bin/pip install -r requirements.txt
+          uv venv
+          uv pip install -r requirements.txt
 
       # The committed binaries are what people download, so they are checked
       # before anything overwrites them.
       - name: Check committed fonts
         run: make check
+
+      # Runs against the committed fonts, so it is comparing like with like.
+      # `git status` rather than `git diff`, so a newly generated file that
+      # nobody committed is caught too.
+      - name: Check the README specimen is current
+        run: |
+          make specimen-image
+          if [ -n "$(git status --porcelain -- documentation/)" ]; then
+            echo "documentation/ is stale. Run 'make specimen-image' and commit."
+            git status --short -- documentation/
+            exit 1
+          fi
 
       - name: Build from source
         run: make all

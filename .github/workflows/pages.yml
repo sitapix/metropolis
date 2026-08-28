@@ -1,0 +1,64 @@
+name: specimen
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "specimen/**"
+      - "fonts/webfonts/**"
+      - ".github/workflows/pages.yml"
+  pull_request:
+    paths:
+      - "specimen/**"
+      - "fonts/webfonts/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+# Supersede a running build when a branch is pushed again, but never cancel a
+# run on main out from under an in-flight deployment.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  # Runs on pull requests too, so a change that breaks the site fails the PR
+  # rather than the deployment.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache bun packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('specimen/bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      # The webfonts are committed, so the site builds without fontmake.
+      - name: Build
+        run: make specimen
+
+      - uses: actions/configure-pages@v5
+        if: github.ref == 'refs/heads/main'
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          path: specimen/_site
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

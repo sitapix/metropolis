@@ -24,7 +24,12 @@ identical. What changed is metadata, structure, and the build.
 
 [Changes from upstream r11](#changes-from-upstream-r11) covers each of these.
 
-![Specimen: default and tabular figures, the Black weight, and the default and single-storey a](./documentation/features.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./documentation/specimen-dark.svg">
+  <img alt="Metropolis specimen: the nine weights of the variable font, matching italics, tabular figures, a single-storey a, and Latin accents." src="./documentation/specimen-light.svg">
+</picture>
+
+There is also an [interactive specimen](#specimen) with a weight slider.
 
 ## Installation
 
@@ -122,7 +127,8 @@ units across inside a 200-unit ring, and a slash heavy enough to read closes it.
 | `fonts/webfonts/` | WOFF2 built from the TTFs, 20 files |
 | `sources/` | 2 Glyphs files, roman and italic |
 | `scripts/` | build steps that fontmake does not cover |
-| `documentation/` | the specimen image above |
+| `specimen/` | the interactive specimen site |
+| `documentation/` | the specimen image above, light and dark |
 
 `sources/` is upstream r11 as of this repository's first commit, plus the
 tabular figures.
@@ -139,8 +145,10 @@ tabular figures.
 
 You only need this if you are changing the fonts. The outputs are committed.
 
-**Requirements:** Python 3.12. Versions are pinned in `requirements.txt`
-(fontmake 3.12.1, brotli 1.2.0); CI builds on Ubuntu with the same pins.
+**Requirements:** [uv](https://docs.astral.sh/uv/) and Python 3.12. Versions
+are pinned in `requirements.txt` (fontmake 3.12.1, brotli 1.2.0, uharfbuzz
+0.56.0); CI builds on Ubuntu with the same pins. The specimen site additionally
+needs [Bun](https://bun.sh).
 
 ```sh
 make venv     # create .venv and install the pinned toolchain
@@ -149,7 +157,9 @@ make check    # assert the metadata that upstream got wrong stays fixed
 ```
 
 The `static`, `ttf`, `variable` and `webfonts` targets each build one output
-kind. `make clean` removes `fonts/` and fontmake's intermediates.
+kind. `make specimen` and `make specimen-image` build the specimen site and the
+README image. `make clean` removes `fonts/`, the built site, and fontmake's
+intermediates.
 
 `scripts/check_fonts.py` runs over every built file and asserts: a 1210 line
 box, `typo` metrics matching `hhea`, win metrics containing `head.yMin` and
@@ -161,10 +171,39 @@ table, and STAT carrying `ital`.
 values and the `ital` axis that fontmake omits, and `make webfonts` calls
 `scripts/make_webfonts.py`, which compresses the variable and static TTFs.
 
+`make specimen-image` calls `scripts/make_specimen_image.py`, which writes
+`documentation/specimen-{light,dark}.svg`. HarfBuzz shapes the text, so the
+`tnum` and `ss01` rows show the font's own features rather than a mock-up, and
+every outline is written out as a path, so the image needs no webfont.
+
 `scripts/add_tabular_figures.py` is not part of `make`: it writes the `.tnum`
 glyphs into `sources/` rather than building from them. It has already been run
 and its output is committed. Run it again only after changing the figures, and
 commit the changed source with the rebuilt fonts.
+
+## Specimen
+
+`specimen/` holds an interactive specimen: a weight slider, a dropdown of the
+nine named instances, an editable type tester, and the full character set.
+
+It is published at **[sitapix.github.io/metropolis](https://sitapix.github.io/metropolis/)**
+on every push to `main` that touches `specimen/` or `fonts/webfonts/`.
+
+```sh
+make specimen                 # build it to specimen/_site
+cd specimen && bun run start  # or serve it at localhost:8080 with live reload
+```
+
+It is [Specimen Builder](https://github.com/markboulton/specimen-builder) by
+Mark Boulton, vendored under `specimen/` and configured for Metropolis. Three
+fixes were needed to make it run on a current toolchain, all described in
+[`specimen/README.md`](./specimen/README.md); the one worth knowing about here
+is that fontkit cannot resolve an `fvar` instance whose `subfamilyNameID` is 2
+or 17, which is what the OpenType spec asks for on the default instance and
+what Metropolis does. The font is correct; the fix is in the generator.
+
+`specimen/src/fonts/` is populated by `make specimen` from `fonts/webfonts/`,
+so the WOFF2 files are not committed twice.
 
 ## Changes from upstream r11
 
@@ -224,6 +263,12 @@ Issues and pull requests are welcome at
 Before opening a pull request, run `make && make check`. CI runs `make check`
 against the committed binaries first, then rebuilds and checks again, so a
 change to `sources/` or `scripts/` needs the rebuilt fonts committed with it.
+It also regenerates the README specimen and fails if `documentation/` has
+drifted, so run `make specimen-image` after changing the fonts or the generator.
+
+The two workflows are gated on the paths they actually depend on: a change to
+`specimen/` does not run fontmake, and a change to `sources/` does not rebuild
+the site.
 
 If a change is meant to hold, add the assertion to `scripts/check_fonts.py`.
 The vertical metrics, the Windows clipping, the single-valued axis and the STAT
@@ -238,3 +283,6 @@ This fork changes no outlines; the drawing is entirely his.
 
 [Unlicense](./UNLICENSE), inherited from upstream. Public domain: use it for
 anything, with or without attribution.
+
+`specimen/` is the exception: it is vendored from Specimen Builder and stays
+under the [Apache License 2.0](./specimen/LICENSE.txt) it was published with.

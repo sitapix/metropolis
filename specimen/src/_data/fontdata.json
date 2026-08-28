@@ -1,0 +1,12 @@
+[
+    {
+        "name": "Metropolis-Regular",
+        "selector": "metropolis-regular",
+        "style": "Roman"
+    },
+    {
+        "name": "Metropolis-Italic",
+        "selector": "metropolis-italic",
+        "style": "Italic"
+    }
+]

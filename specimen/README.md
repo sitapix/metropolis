@@ -13,7 +13,10 @@ into `src/fonts/`, so they are not committed twice. `bun run start` needs them
 to be there already, which `make specimen` arranges.
 
 Published to [sitapix.github.io/metropolis](https://sitapix.github.io/metropolis/)
-by `.github/workflows/pages.yml`.
+by `.github/workflows/pages.yml`, which deploys with `actions/deploy-pages` and
+needs no secret. Upstream's `docs/github_pages_auto_deploy.md` described a
+deploy-key flow instead; it is dropped, since following it would mean creating a
+write-scoped SSH key for nothing.
 
 ## What this is
 

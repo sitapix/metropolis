@@ -26168,6 +26168,7 @@ layers = (
 {
 components = (
 {
+alignment = -1;
 name = six;
 transform = "{-1, 0, 0, -1, 676, 687}";
 }
@@ -26178,6 +26179,7 @@ width = 676;
 {
 components = (
 {
+alignment = -1;
 name = six;
 transform = "{-1, 0, 0, -1, 611, 687}";
 }
@@ -26188,6 +26190,7 @@ width = 611;
 {
 components = (
 {
+alignment = -1;
 name = six;
 transform = "{-1, 0, 0, -1, 604, 687}";
 }
@@ -26199,6 +26202,7 @@ width = 603;
 associatedMasterId = "A0D976AB-773B-4D3A-9F7E-7A0C42AF1E7B";
 components = (
 {
+alignment = -1;
 name = six;
 transform = "{-1, 0, 0, -1, 676, 687}";
 }
@@ -34328,6 +34332,7 @@ layers = (
 {
 components = (
 {
+alignment = -1;
 name = tilde;
 transform = "{1, 0, 0, 1, 30, -275}";
 }
@@ -34338,6 +34343,7 @@ width = 456;
 {
 components = (
 {
+alignment = -1;
 name = tilde;
 transform = "{1, 0, 0, 1, 36, -281}";
 }
@@ -34348,6 +34354,7 @@ width = 495;
 {
 components = (
 {
+alignment = -1;
 name = tilde;
 transform = "{1, 0, 0, 1, 34, -275}";
 }
@@ -43102,6 +43109,7 @@ layers = (
 {
 components = (
 {
+alignment = -1;
 name = six;
 transform = "{-1, 0, 0, -1, 641, 687}";
 }
@@ -43112,6 +43120,7 @@ width = 674;
 {
 components = (
 {
+alignment = -1;
 name = six;
 transform = "{-1, 0, 0, -1, 649, 687}";
 }
@@ -43122,6 +43131,7 @@ width = 683;
 {
 components = (
 {
+alignment = -1;
 name = six;
 transform = "{-1, 0, 0, -1, 709, 687}";
 }

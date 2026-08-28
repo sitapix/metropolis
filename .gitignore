@@ -1,0 +1,14 @@
+# build intermediates
+build/
+master_ufo/
+instance_ufo/
+variable_ttf/
+*.designspace
+
+# tooling
+.venv/
+__pycache__/
+.DS_Store
+
+# Glyphs autosave
+*(Autosaved).glyphs

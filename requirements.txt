@@ -1,0 +1,2 @@
+fontmake==3.12.1
+brotli==1.2.0

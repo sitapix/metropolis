@@ -5,6 +5,7 @@ rather than a mock-up, and every outline is written out as a path, so the image
 carries no webfont and renders identically wherever SVG does.
 """
 import os
+from fontTools.pens.boundsPen import BoundsPen
 from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
 import uharfbuzz as hb
@@ -50,6 +51,7 @@ CITY = 34           # the language sample
 
 LADDER_STEP = 74
 HEADING_TRACK = 90  # letterspacing, in font units per glyph
+HEADING_GAP = 14    # clear space between a rule and the ink below it
 
 
 class Renderer:
@@ -117,6 +119,26 @@ class Renderer:
             if not char.isspace():
                 i += 1
 
+    def ink_top(self, text, size, style="roman", weight=400, features=None,
+                tracking=0):
+        """How far the run's ink rises above its baseline, in user units."""
+        font, buf = self._shape(text, style, weight, features)
+        top = 0
+        for info in buf.glyph_infos:
+            bounds = BoundsPen(None)
+            font.draw_glyph_with_pen(info.codepoint, bounds)
+            if bounds.bounds:
+                top = max(top, bounds.bounds[3])
+        return top * size / self.upem
+
+    def baseline_after(self, rule_y, text, size, **kw):
+        """First baseline under a rule that clears the row's ascenders.
+
+        A fixed drop does not: at size 66 the ink rises 46 units at wght 100 and
+        51 at wght 900, so a constant tuned for one weight collides at another.
+        """
+        return rule_y + HEADING_GAP + self.ink_top(text, size, **kw)
+
     def right(self, text, x_end, y, size, color, **kw):
         self.draw(text, x_end - self.width(text, size, **kw), y, size, color, **kw)
 
@@ -127,13 +149,14 @@ class Renderer:
         )
 
     def heading(self, text, x, y, width, palette, trailing=None):
-        """A letterspaced section heading over a hairline rule. Returns the next y."""
+        """A letterspaced section heading over a hairline rule. Returns the rule's y."""
         self.draw(text, x, y, HEADING, palette["muted"], weight=600,
                   tracking=HEADING_TRACK)
         if trailing:
             self.right(trailing, x + width, y, LABEL, palette["muted"])
-        self.rule(x, y + 17, width, palette["rule"])
-        return y + 60
+        rule_y = y + 17
+        self.rule(x, rule_y, width, palette["rule"])
+        return rule_y
 
 
 def build(palette):
@@ -145,38 +168,46 @@ def build(palette):
 
     # Left column: one line of the family name per named instance, which is the
     # only view that shows the whole axis at once.
-    y = r.heading("WEIGHT AXIS", left, top, LEFT_COL, palette, trailing="wght 100 – 900")
+    rule = r.heading("WEIGHT AXIS", left, top, LEFT_COL, palette,
+                     trailing="wght 100 – 900")
+    y = r.baseline_after(rule, "Metropolis", SAMPLE, weight=WEIGHTS[0][0])
     for weight, name in WEIGHTS:
         r.right(str(weight), left + 40, y, LABEL, muted)
         r.draw("Metropolis", left + 60, y, SAMPLE, ink, weight=weight)
         r.right(name, left + LEFT_COL, y, LABEL, muted)
         y += LADDER_STEP
 
-    y = r.heading("CONTINUOUS", left, y + 20, LEFT_COL, palette,
-                  trailing="every value between")
-    r.ramp("Metropolis", left, y + 4, SAMPLE, ink, 100, 900)
-    left_bottom = y + 4 + SAMPLE * 0.25
+    rule = r.heading("CONTINUOUS", left, y + 20, LEFT_COL, palette,
+                     trailing="every value between")
+    # The ramp ends at wght 900, which is the tallest ink in the run.
+    y = r.baseline_after(rule, "Metropolis", SAMPLE, weight=900)
+    r.ramp("Metropolis", left, y, SAMPLE, ink, 100, 900)
+    left_bottom = y + SAMPLE * 0.25
 
     # Right column: the italics, then the three things this build added.
-    y = r.heading("MATCHING ITALICS", right, top, RIGHT_COL, palette)
+    rule = r.heading("MATCHING ITALICS", right, top, RIGHT_COL, palette)
+    y = r.baseline_after(rule, "Metropolis", SAMPLE, style="italic", weight=300)
     for weight in (300, 700):
         r.right(str(weight), right + 40, y, LABEL, muted)
         r.draw("Metropolis", right + 60, y, SAMPLE, ink, style="italic", weight=weight)
         y += LADDER_STEP
 
-    y = r.heading("TABULAR FIGURES", right, y + 26, RIGHT_COL, palette)
+    rule = r.heading("TABULAR FIGURES", right, y + 26, RIGHT_COL, palette)
+    y = r.baseline_after(rule, "0000 1111 0123456789", FEATURE)
     for label, features in (("default", None), ("tnum", {"tnum": True})):
         r.right(label, right + 62, y, LABEL, muted)
         r.draw("0000 1111 0123456789", right + 84, y, FEATURE, ink, features=features)
         y += 60
 
-    y = r.heading("SINGLE-STOREY A", right, y + 26, RIGHT_COL, palette)
+    rule = r.heading("SINGLE-STOREY A", right, y + 26, RIGHT_COL, palette)
+    y = r.baseline_after(rule, "aaa abcdefg", FEATURE)
     for label, features in (("default", None), ("ss01", {"ss01": True})):
         r.right(label, right + 62, y, LABEL, muted)
         r.draw("aaa abcdefg", right + 84, y, FEATURE, ink, features=features)
         y += 60
 
-    y = r.heading("LATIN, 263 LANGUAGES", right, y + 26, RIGHT_COL, palette)
+    rule = r.heading("LATIN, 263 LANGUAGES", right, y + 26, RIGHT_COL, palette)
+    y = r.baseline_after(rule, CITIES[0], CITY, weight=350)
     for line in CITIES:
         r.draw(line, right, y, CITY, ink, weight=350)
         y += 48

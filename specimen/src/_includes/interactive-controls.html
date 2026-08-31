@@ -2,7 +2,7 @@
 
 	<div class="controls">
 		{% if fonts[main_selector].instances.length != 0 %}
-			<div class="interactive-controls-container">
+			<div class="interactive-controls-container interactive-controls-select-row">
 				<label for="interactive-controls-instances-select">Instances</label>
 				<select
 					id="interactive-controls-instances-select"
@@ -18,10 +18,10 @@
 		{% endif %}
 
 		{% if fontdata.length >= 2 %}
-			<div class="interactive-controls-container">
-				<label for="interactive-controls-instances-select">Styles</label>
+			<div class="interactive-controls-container interactive-controls-select-row">
+				<label for="interactive-controls-styles-select">Styles</label>
 				<select
-					id="interactive-controls-instances-select"
+					id="interactive-controls-styles-select"
 					class="interactive-controls-styles"
 				>
 					{% for font in fontdata %}
@@ -67,8 +67,8 @@
 				<input
 					type="range"
 					min="9"
-					max="92"
-					value="48"
+					max="64"
+					value="32"
 					name="font-size"
 					id="interactive-controls-fontsize"
 					step="any"

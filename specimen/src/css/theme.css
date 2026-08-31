@@ -2,21 +2,51 @@
 
 /* Setting up some variables first */
 :root {
-	--light: #fff;
+	/* Ground and ink. */
+	--light: #fafafa;
 	--dark: #000;
-	--grey-light: #eee;
-	--grey-mid: #999;
-	--grey-dark: #666;
 	--text: var(--dark);
 	--background: var(--light);
-	--font-system: "Inter", sans-serif;
+
+	/* Secondary text (specimen labels, glyph category headings). Split per
+	   theme because no single grey clears 4.5:1 against both grounds. */
+	--muted: #6b6b6b;
+
+	/* Hairlines. --rule separates sections and is decorative. --rule-strong
+	   draws the glyph cells, which are hoverable, so it clears 3:1. */
+	--rule: #cfcfcf;
+	--rule-strong: #8f8f8f;
+
+	/* A type specimen sets its own interface in the typeface it is showing. */
+	--font-system: "Metropolis-Regular", ui-sans-serif, system-ui, -apple-system,
+		"Segoe UI", sans-serif;
 	--specimen-fallback-font: var(--font-system);
+	--side-column: minmax(17rem, 1fr);
+
+	/* Kept so existing overrides keep resolving. */
+	--grey-light: #eee;
+	--grey-mid: var(--muted);
+	--grey-dark: var(--rule-strong);
 }
 
-/* For dark mode */
+/* Follow the operating system until the visitor picks a side themselves. */
+@media (prefers-color-scheme: dark) {
+	html:not([data-dark-mode="false"]) {
+		--text: var(--light);
+		--background: var(--dark);
+		--muted: #9a9a9a;
+		--rule: #38383c;
+		--rule-strong: #6e6e75;
+	}
+}
+
+/* An explicit choice always wins over the operating system. */
 html[data-dark-mode="true"] {
 	--text: var(--light);
 	--background: var(--dark);
+	--muted: #9a9a9a;
+	--rule: #38383c;
+	--rule-strong: #6e6e75;
 }
 
 body {
@@ -29,8 +59,11 @@ body {
 }
 
 main {
-	max-width: 90rem;
-	padding: 0 3vw;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 60rem;
+	margin: 0 auto;
+	padding: 0 clamp(1rem, 3vw, 2.5rem);
 }
 
 a {
@@ -285,14 +318,18 @@ button {
 
 /* Global styles */
 .container {
-	border-top: 1px solid var(--text);
+	border-top: 1px solid var(--rule);
 	padding: 0;
 }
 
 /* CONTAINER: Masthead */
 .masthead {
 	display: grid;
-	grid-template-columns: 3fr 1fr;
+
+	/* The meta column needs a readable measure of its own. At a bare 1fr the
+	   about paragraph wrapped into a ribbon and dictated the masthead height,
+	   leaving the poster stranded in dead space. */
+	grid-template-columns: minmax(0, 2fr) var(--side-column);
 	grid-template-rows: 1fr;
 	gap: 1px 1px;
 	grid-template-areas: "title meta";
@@ -307,6 +344,18 @@ button {
 
 .masthead-title {
 	grid-area: title;
+}
+
+.masthead-title h2 {
+	margin: 1rem 0 0.5rem 0;
+}
+
+.masthead-title p {
+	/* .type-6xl sets no line-height, so `normal` was adding ~50px of leading
+	   below the poster that read as dead space above the section rule. The
+	   padding keeps descenders clear for posters that have them. */
+	line-height: 1;
+	padding-bottom: 0.13em;
 }
 
 .masthead-meta {
@@ -343,13 +392,16 @@ button {
 	text-transform: uppercase;
 	letter-spacing: 1px;
 	font-size: 0.7em;
-	color: var(--grey-mid);
+	color: var(--muted);
 }
 
 /* Preview layout */
 .interactive-controls {
 	display: grid;
-	grid-template-columns: 3fr 1fr;
+
+	/* Match the masthead so both right-hand panels have the same width and
+	   begin on the same vertical line. */
+	grid-template-columns: minmax(0, 2fr) var(--side-column);
 	grid-template-rows: 1fr;
 	gap: 1px 1px;
 	grid-template-areas: "preview controls";
@@ -385,6 +437,11 @@ button {
 	outline: 0 solid transparent;
 }
 
+[contenteditable]:focus-visible {
+	outline: 2px solid var(--text);
+	outline-offset: 4px;
+}
+
 .interactive-controls label {
 	font-size: 0.8rem;
 	font-weight: 400;
@@ -405,7 +462,8 @@ button {
 }
 
 .interactive-controls-buttons button.active {
-	background: var(--grey-mid);
+	background: var(--text);
+	color: var(--background);
 }
 
 /* Range slider */
@@ -413,6 +471,10 @@ input[type="range"] {
 	height: 2em;
 	-webkit-appearance: none;
 	width: 100%;
+
+	/* The UA stylesheet gives range inputs `margin: 0 2px`, which left them
+	   4px narrower than the selects and out of line on both edges. */
+	margin: 0;
 	background-color: var(--background);
 }
 input[type="range"]:focus {
@@ -533,7 +595,7 @@ input[type="range"]:focus::-ms-fill-upper {
 .character-grid h3 {
 	font-family: var(--font-system);
 	font-size: 0.7rem;
-	color: var(--grey-mid);
+	color: var(--muted);
 	text-transform: uppercase;
 	letter-spacing: 1px;
 }

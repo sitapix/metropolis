@@ -3,7 +3,7 @@
 
 module.exports = {
 	// Masthead
-	poster: "Rag", // This appears as the three large glyphs at the top. Change this to a few interesting glyphs that summarise the typeface. Ψ℘ℜ
+	poster: "Sans", // This appears as the large glyphs at the top. Change this to a few interesting glyphs that summarise the typeface. Ψ℘ℜ
 
 	// Tester. This is the default text for the type tester.
 	tester: "Jackdaws love my big sphinx of quartz.",
@@ -11,7 +11,7 @@ module.exports = {
 	// Specimen. These are the four lines which are are set centred. The aim is to show different weights and styles, so choose content that is varied in nature.
 	specimen1: "NINE WEIGHTS",
 	specimen2: "Łódź · Kraków",
-	specimen3: "0123456789 — wght 100 to 900",
+	specimen3: "0123456789 wght 100 to 900",
 	specimen4:
 		"Nine weights, matching italics, tabular figures, and a single-storey a.",
 

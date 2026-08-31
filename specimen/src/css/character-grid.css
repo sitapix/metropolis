@@ -20,7 +20,7 @@ ol {
 	grid-template-columns: 1fr 1fr;
 	grid-template-rows: 1fr;
 	gap: 1px 1px;
-	grid-template-areas: "glyphs preview";
+	grid-template-areas: "preview glyphs";
 	position: relative;
 }
 
@@ -49,7 +49,7 @@ ol {
 }
 
 .container-preview {
-	grid-area: glyphs;
+	grid-area: preview;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -58,7 +58,7 @@ ol {
 }
 
 .character-grid {
-	grid-area: preview;
+	grid-area: glyphs;
 }
 
 .character-grid-list {
@@ -76,7 +76,7 @@ ol {
 .character-grid-list > li {
 	display: flex;
 	height: var(--character-grid-cell);
-	outline: 1px solid var(--grey-dark);
+	outline: 1px solid var(--rule-strong);
 	justify-content: center;
 	align-items: center;
 }

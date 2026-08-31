@@ -1,9 +1,5 @@
 {
 .appVersion = "3528";
-DisplayStrings = (
-"AÁ/Abreve ÂÄÀ/Amacron/Aogonek ÅÃÆBC/Cacute/Ccaron ÇDÐ/Dcaron/Dcroat EÉ/Ecaron ÊË/Edotaccent/Edotbelow È/Emacron/Eogonek/Etilde FG/Gbreve/Gcommaaccent HIÍÎÏ/Idotaccent Ì/Imacron/Iogonek JK/Kcommaaccent L/Lacute/Lcaron/Lslash MN/Nacute/Ncaron/Ncommaaccent Ñ\012OÓÔÖÒ/Ohungarumlaut/Omacron ØÕ/OE PÞQR/Racute/Rcaron/Rcommaaccent S/Sacute/Scaron/Scedilla T/Tcaron/Tcedilla UÚÛÜÙ/Uhungarumlaut/Umacron/Uogonek/Uring VW/Wacute/Wcircumflex/Wdieresis/Wgrave XYÝ/Ycircumflex/Ydieresis/Ygrave Z/Zacute/Zcaron/Zdotaccent \012aá/abreve âäà/amacron/aogonek åãæbc/cacute/ccaron çdð/dcaron/dcroat eé/ecaron êë/edotaccent/edotbelow è/emacron/eogonek/etilde fg/gbreve/gcommaaccent hi/idotless íîïì/imacron/iogonek j/jdotless k/kcommaaccent l/lacute/lcaron/lslash mn/nacute/ncaron/ncommaaccent ñoóôöò/ohungarumlaut/omacron øõ\012/oe pþqr/racute/rcaron/rcommaaccent s/sacute/scaron/scedilla ßt/tcaron/tcedilla uúûüù/uhungarumlaut/umacron/uogonek/uring vw/wacute/wcircumflex/wdieresis/wgrave xyý/ycircumflex/ydieresis/ygrave z/zacute/zcaron/zdotaccent/a.alt/aacute.alt/abreve.alt/acircumflex.alt/adieresis.alt/agrave.alt/amacron.alt/aogonek.alt/aring.alt/atilde.alt 0123456789\012.,:;/ellipsis !¡?¿·/bullet *#///backslash (){}[]-/endash/emdash _/quotedblbase/quotedblleft/quotedblright/quoteleft/quoteright «»/guilsinglleft/guilsinglright \"'/emspace/enspace/fourperemspace/narrownbspace/sixperemspace/space/threeperemspace ¢$/euro £¥+/minus ×÷=><~^%/perthousand @&¶©®/trademark |/dotaccentcomb/commaaccentcomb \012¨/dotaccent `´/hungarumlaut/circumflex/caron/breve/ring/tilde ¯¸/ogonek",
-"The/space quick/space brown/space fox\012jumps/space over/space the/space lazy\012dog.\012\012She/space sells/space sea/space shells/space by/space the/space seashore"
-);
 classes = (
 {
 code = "a aacute abreve acircumflex adieresis agrave amacron aogonek aring atilde";

@@ -18,7 +18,11 @@
 	}
 }
 
-.interactive-controls-instances,
+/* The flex row belongs on the wrapper. Setting `display: flex` on a <select>
+   itself leaves the closed control blank in WebKit, and the old
+   `.interactive-controls-instances select` rule never matched, because the
+   class sits on the <select>, not on a container around it. */
+.interactive-controls-select-row,
 .interactive-controls-sliders li {
 	display: flex;
 	align-items: center;
@@ -29,7 +33,8 @@
 	min-width: var(--label-width);
 }
 
-.interactive-controls-instances select,
+.interactive-controls-instances,
+.interactive-controls-styles,
 .interactive-controls-slider {
 	width: 100%;
 }

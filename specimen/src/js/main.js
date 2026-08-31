@@ -70,19 +70,40 @@ for (const interactive of interactives) {
 		area.style.setProperty(`--${name}`, value);
 	};
 
+	// Point the named instance dropdown at whichever instance matches the
+	// current axis values, or clear it when the axes sit between instances.
+	// Without this the dropdown loads showing the first instance regardless of
+	// what the sliders are actually set to.
+	const syncInstances = () => {
+		if (!instances) {
+			return;
+		}
+		instances.selectedIndex = Array.from(instances.options).findIndex(
+			option => {
+				const axes = JSON.parse(option.value);
+				return Object.keys(axes).every(axis => {
+					const slider = interactive.querySelector(`[name=${axis}]`);
+					return (
+						slider && Number(slider.value) === Number(axes[axis])
+					);
+				});
+			}
+		);
+	};
+
 	for (const slider of sliders) {
 		// Apply initial axis value to text area
 		varset(slider.name, slider.value);
 		slider.oninput = e => {
 			// Set new axis value to text area
 			varset(e.target.name, e.target.value);
-			// Unselect named instance dropdown
-			// Optionally, see if current axes match instance and select that
-			if (instances) {
-				instances.selectedIndex = -1;
-			}
+			// Match the named instance dropdown to the new axis values
+			syncInstances();
 		};
 	}
+
+	// Apply the initial axis values to the dropdown
+	syncInstances();
 
 	if (instances) {
 		instances.onchange = e => {

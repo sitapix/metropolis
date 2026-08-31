@@ -15,13 +15,20 @@
 			rel="stylesheet"
 			href="{% webpackAssetPath '../css/main.css' %}"
 		/>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap" rel="stylesheet">
 		<script defer src="{% webpackAssetPath '../js/main.js' %}"></script>
 		<script>
-			document.documentElement.setAttribute(
-				"data-dark-mode",
-				localStorage.getItem("dark-mode")
-			);
+			// Stamp the attribute only when the visitor has actually chosen a
+			// mode. Leaving it absent lets prefers-color-scheme decide, and
+			// avoids writing the literal string "null" on a first visit.
+			(function() {
+				var stored = localStorage.getItem("dark-mode");
+				if (stored === "true" || stored === "false") {
+					document.documentElement.setAttribute(
+						"data-dark-mode",
+						stored
+					);
+				}
+			})();
 		</script>
 	</head>
 
@@ -32,12 +39,20 @@
 		document
 			.querySelector(".dark-mode-toggle")
 			.addEventListener("click", () => {
-				const isDarkMode = localStorage.getItem("dark-mode") === "true";
+				const stored = localStorage.getItem("dark-mode");
+				// Read the effective mode, not just storage. Without the
+				// media-query fallback the first click on a dark-by-default
+				// system stores "true" and appears to do nothing.
+				const isDarkMode =
+					stored === "true" || stored === "false"
+						? stored === "true"
+						: window.matchMedia("(prefers-color-scheme: dark)")
+								.matches;
 				document.documentElement.setAttribute(
 					"data-dark-mode",
-					!isDarkMode
+					String(!isDarkMode)
 				);
-				localStorage.setItem("dark-mode", !isDarkMode);
+				localStorage.setItem("dark-mode", String(!isDarkMode));
 			});
 	</script>
 </html>

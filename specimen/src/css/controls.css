@@ -1,0 +1,534 @@
+/* Buttons, chips, sliders, segmented controls, switches and swatches.
+   Every target is at least 44px tall; native inputs stay underneath the
+   styling so keyboard and screen readers get real controls. */
+
+/* Buttons */
+
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-2);
+	min-height: 44px;
+	padding: 0 var(--space-5);
+	border: 2px solid transparent;
+	border-radius: var(--pill);
+	background: none;
+	text-decoration: none;
+	white-space: nowrap;
+
+	--wght: 600;
+
+	transition: transform var(--t-fast) var(--ease-out),
+		background-color var(--t) ease, border-color var(--t) ease,
+		color var(--t) ease, box-shadow var(--t) ease;
+}
+
+.btn:active {
+	transform: scale(0.97);
+}
+
+.btn-sm {
+	min-height: 40px;
+	padding: 0 var(--space-4);
+	font-size: 0.95rem;
+}
+
+.btn-lg {
+	min-height: 56px;
+	padding: 0 var(--space-6);
+	font-size: 1.1rem;
+}
+
+.btn-primary {
+	background: var(--accent);
+	color: var(--accent-ink);
+}
+
+.btn-primary:hover {
+	box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.btn-ghost {
+	border-color: var(--line-strong);
+}
+
+.btn-ghost:hover {
+	border-color: var(--ink);
+	background: var(--surface);
+}
+
+.btn-ink {
+	background: var(--accent-ink);
+	color: #f4f5f7;
+}
+
+.btn-ink:hover {
+	box-shadow: 0 0 0 4px rgba(21, 23, 27, 0.25);
+}
+
+.btn-ghost-ink {
+	border-color: var(--accent-ink);
+	color: var(--accent-ink);
+}
+
+.btn-ghost-ink:hover {
+	background: rgba(21, 23, 27, 0.08);
+}
+
+.icon-btn {
+	display: inline-grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	border: 2px solid var(--line);
+	border-radius: 50%;
+	background: none;
+	transition: border-color var(--t) ease,
+		transform var(--t) var(--ease-spring);
+}
+
+.icon-btn:hover {
+	border-color: var(--ink);
+	transform: rotate(-18deg);
+}
+
+/* Chips */
+
+.chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2);
+}
+
+.chip {
+	min-height: 44px;
+	padding: 0 var(--space-4);
+	border: 2px solid var(--line);
+	border-radius: var(--pill);
+	background: transparent;
+
+	--wght: 500;
+
+	transition: background-color var(--t) ease, border-color var(--t) ease,
+		color var(--t) ease, transform var(--t-fast) var(--ease-out);
+}
+
+.chip:hover {
+	border-color: currentColor;
+}
+
+.chip:active {
+	transform: scale(0.96);
+}
+
+.chip.is-active {
+	border-color: var(--ink);
+	background: var(--ink);
+	color: var(--paper);
+
+	--wght: 650;
+}
+
+/* Control scaffolding */
+
+.control {
+	display: grid;
+	gap: var(--space-2);
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.control legend,
+.control-head label {
+	padding: 0;
+	font-size: 0.95rem;
+	color: var(--ink-2);
+
+	--wght: 650;
+}
+
+.control legend {
+	margin-bottom: var(--space-2);
+}
+
+.control-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-3);
+}
+
+.out,
+.num {
+	min-width: 4.5ch;
+	font-size: 0.95rem;
+	font-feature-settings: "tnum";
+	text-align: right;
+
+	--wght: 650;
+}
+
+.num {
+	width: 5.5ch;
+	min-height: 40px;
+	padding: 0 var(--space-2);
+	border: 2px solid var(--line);
+	border-radius: var(--radius-s);
+	background: var(--surface);
+	-moz-appearance: textfield;
+}
+
+.num::-webkit-inner-spin-button,
+.num::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.num:focus {
+	border-color: var(--focus);
+	outline: none;
+}
+
+/* Range sliders. --f (0–1) is set by main.js and drives the fill and the
+   bubble, so the filled part always ends under the thumb's centre. */
+
+.range {
+	--f: 0.5;
+	--thumb: 28px;
+	--track-h: 10px;
+
+	position: relative;
+}
+
+.range-weight {
+	--thumb: 36px;
+	--track-h: 16px;
+}
+
+.range input[type="range"] {
+	-webkit-appearance: none;
+	appearance: none;
+	display: block;
+	width: 100%;
+	height: 44px;
+	margin: 0;
+	background: transparent;
+	cursor: grab;
+	touch-action: pan-y;
+}
+
+.range input[type="range"]:active {
+	cursor: grabbing;
+}
+
+.range input[type="range"]:focus-visible {
+	outline: none;
+}
+
+.range input[type="range"]::-webkit-slider-runnable-track {
+	height: var(--track-h);
+	border-radius: var(--pill);
+	background: linear-gradient(
+		90deg,
+		var(--accent) 0,
+		var(--accent) calc(var(--thumb) / 2 + var(--f) * (100% - var(--thumb))),
+		var(--track) calc(var(--thumb) / 2 + var(--f) * (100% - var(--thumb)))
+	);
+}
+
+.range input[type="range"]::-moz-range-track {
+	height: var(--track-h);
+	border-radius: var(--pill);
+	background: var(--track);
+}
+
+.range input[type="range"]::-moz-range-progress {
+	height: var(--track-h);
+	border-radius: var(--pill);
+	background: var(--accent);
+}
+
+.range input[type="range"]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	width: var(--thumb);
+	height: var(--thumb);
+	margin-top: calc((var(--track-h) - var(--thumb)) / 2);
+	border: 3px solid var(--ink);
+	border-radius: 50%;
+	background: var(--surface);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+	transition: transform var(--t) var(--ease-spring), box-shadow var(--t) ease;
+}
+
+.range input[type="range"]::-moz-range-thumb {
+	box-sizing: border-box;
+	width: var(--thumb);
+	height: var(--thumb);
+	border: 3px solid var(--ink);
+	border-radius: 50%;
+	background: var(--surface);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+	transition: transform var(--t) var(--ease-spring), box-shadow var(--t) ease;
+}
+
+.range input[type="range"]:hover::-webkit-slider-thumb {
+	transform: scale(1.08);
+}
+
+.range input[type="range"]:active::-webkit-slider-thumb {
+	transform: scale(1.2);
+	box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.range input[type="range"]:active::-moz-range-thumb {
+	transform: scale(1.2);
+	box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.range input[type="range"]:focus-visible::-webkit-slider-thumb {
+	box-shadow: 0 0 0 4px var(--paper), 0 0 0 7px var(--focus);
+}
+
+.range input[type="range"]:focus-visible::-moz-range-thumb {
+	box-shadow: 0 0 0 4px var(--paper), 0 0 0 7px var(--focus);
+}
+
+.range-bubble {
+	position: absolute;
+	left: calc(var(--thumb) / 2 + var(--f) * (100% - var(--thumb)));
+	bottom: calc(100% + 2px);
+	padding: 4px 10px;
+	border-radius: var(--pill);
+	background: var(--ink);
+	color: var(--paper);
+	font-size: 0.85rem;
+	font-feature-settings: "tnum";
+	white-space: nowrap;
+
+	--wght: 650;
+
+	pointer-events: none;
+	opacity: 0;
+	transform: translate(-50%, 6px) scale(0.9);
+	transition: opacity var(--t-fast) ease,
+		transform var(--t) var(--ease-spring);
+}
+
+.range-bubble::after {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 100%;
+	border: 6px solid transparent;
+	border-top-color: var(--ink);
+	transform: translateX(-50%);
+}
+
+.range.is-active .range-bubble,
+.range:hover .range-bubble,
+.range:focus-within .range-bubble {
+	opacity: 1;
+	transform: translate(-50%, 0) scale(1);
+}
+
+/* Segmented control: radios under pill-shaped labels. */
+
+.segmented {
+	display: inline-flex;
+	gap: 4px;
+	padding: 4px;
+	border-radius: var(--pill);
+	background: var(--surface-2);
+}
+
+.segmented label {
+	position: relative;
+	display: flex;
+}
+
+.segmented input {
+	position: absolute;
+	inset: 0;
+	margin: 0;
+	opacity: 0;
+	cursor: pointer;
+}
+
+.segmented span {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	min-height: 40px;
+	padding: 0 var(--space-4);
+	border-radius: var(--pill);
+
+	--wght: 550;
+
+	transition: background-color var(--t) ease, color var(--t) ease;
+}
+
+.segmented-icons span {
+	padding: 0 var(--space-3);
+}
+
+.segmented label:hover span {
+	background: var(--line);
+}
+
+.segmented input:checked + span {
+	background: var(--ink);
+	color: var(--paper);
+
+	--wght: 650;
+}
+
+.segmented input:focus-visible + span {
+	outline: 3px solid var(--focus);
+	outline-offset: 2px;
+}
+
+/* Switch */
+
+.switch {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	min-height: 44px;
+	cursor: pointer;
+
+	--wght: 500;
+}
+
+.switch input {
+	position: absolute;
+	width: 48px;
+	height: 28px;
+	margin: 0;
+	opacity: 0;
+	cursor: pointer;
+}
+
+.switch-track {
+	position: relative;
+	flex: none;
+	width: 48px;
+	height: 28px;
+	border-radius: var(--pill);
+	background: var(--track);
+	transition: background-color var(--t) ease;
+}
+
+.switch-track::after {
+	content: "";
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background: var(--surface);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+	transition: transform var(--t) var(--ease-spring);
+}
+
+.switch input:checked + .switch-track {
+	background: var(--accent);
+}
+
+.switch input:checked + .switch-track::after {
+	transform: translateX(20px);
+}
+
+.switch input:focus-visible + .switch-track {
+	outline: 3px solid var(--focus);
+	outline-offset: 3px;
+}
+
+/* Colour swatches */
+
+.swatches {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2);
+}
+
+.swatches label {
+	position: relative;
+	display: flex;
+}
+
+.swatches input {
+	position: absolute;
+	inset: 0;
+	margin: 0;
+	opacity: 0;
+	cursor: pointer;
+}
+
+.swatch {
+	display: grid;
+	place-items: center;
+	width: 52px;
+	height: 44px;
+	border-radius: var(--radius-s);
+	border: 2px solid var(--line);
+	font-size: 1rem;
+
+	--wght: 750;
+
+	transition: transform var(--t) var(--ease-spring);
+}
+
+.swatches label:hover .swatch {
+	transform: translateY(-2px);
+}
+
+.swatches input:checked + .swatch {
+	box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink);
+}
+
+.swatches input:focus-visible + .swatch {
+	outline: 3px solid var(--focus);
+	outline-offset: 5px;
+}
+
+.swatch-paper {
+	background: #f8f9fb;
+	color: #15171b;
+}
+
+.swatch-ink {
+	background: #15171b;
+	color: #f4f5f7;
+}
+
+.swatch-citrus {
+	background: #f97316;
+	color: #15171b;
+}
+
+.swatch-cobalt {
+	background: #2447d6;
+	color: #fff;
+}
+
+/* Badge */
+
+.badge {
+	display: inline-flex;
+	align-items: center;
+	min-height: 28px;
+	padding: 0 var(--space-3);
+	border-radius: var(--pill);
+	background: var(--ink);
+	color: var(--paper);
+	font-size: 0.8rem;
+	white-space: nowrap;
+
+	--wght: 650;
+}

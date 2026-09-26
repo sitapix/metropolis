@@ -1,0 +1,24 @@
+<section class="section weights" id="weights" aria-labelledby="weights-title">
+	<header class="section-head section-head-row">
+		<div>
+			<h2 id="weights-title">Weights</h2>
+			<p class="lede">The nine named instances. Click a row to load it into the type tester.</p>
+		</div>
+		<div class="segmented" role="radiogroup" aria-label="Style for the weight list">
+			<label><input type="radio" name="w-style" value="{{ roman }}" checked /><span>Roman</span></label>
+			<label><input type="radio" name="w-style" value="{{ italic }}" /><span class="{{ italic }}">Italic</span></label>
+		</div>
+	</header>
+
+	<ol class="w-list {{ roman }}">
+		{% for i in instances %}
+		<li>
+			<button type="button" class="w-row" data-wght="{{ i.axes.wght }}" style="--wght: {{ i.axes.wght }}">
+				<span class="w-meta"><span class="w-name">{{ i.name }}</span><span class="w-num">{{ i.axes.wght }}</span></span>
+				<span class="w-sample">{{ content.waterfall }}</span>
+				<span class="w-go" aria-hidden="true">Try it<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+			</button>
+		</li>
+		{% endfor %}
+	</ol>
+</section>

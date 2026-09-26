@@ -62,11 +62,22 @@ jobs:
             exit 1
           fi
 
+      # Set the committed fonts aside so the fresh build can be compared with them.
+      - name: Keep committed fonts
+        run: cp -R fonts "$RUNNER_TEMP/committed-fonts"
+
+      # `make clean` first, so a font the sources no longer produce is not
+      # left behind looking current.
       - name: Build from source
-        run: make all
+        run: |
+          make clean
+          make all
 
       - name: Check fresh build
         run: make check
+
+      - name: Check committed fonts match the sources
+        run: .venv/bin/python scripts/compare_fonts.py "$RUNNER_TEMP/committed-fonts" fonts
 
       - uses: actions/upload-artifact@v4
         with:

@@ -1,0 +1,25 @@
+<section class="get" id="get" aria-labelledby="get-title">
+	<div class="get-copy">
+		<h2 id="get-title">Download</h2>
+		<p>Metropolis is in the public domain under the Unlicense. The release has OTF for desktop apps and WOFF2 for the web, with one variable file per style.</p>
+		<div class="get-cta">
+			<a class="btn btn-ink btn-lg" href="{{ site.releases }}">Download the latest release</a>
+			<a class="btn btn-ghost-ink btn-lg" href="{{ site.webfont }}">Browse the webfonts</a>
+		</div>
+	</div>
+	<div class="code-card">
+		<div class="code-card-head">
+			<span>styles.css</span>
+			<button type="button" class="btn btn-sm btn-code" data-copy="#css-snippet">Copy</button>
+		</div>
+<pre id="css-snippet"><code>@font-face {
+  font-family: "Metropolis";
+  src: url("Metropolis[wght].woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+body { font-family: Metropolis, sans-serif; }
+h1   { font-weight: 850; }</code></pre>
+	</div>
+</section>

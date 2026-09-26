@@ -1,0 +1,84 @@
+/* Colour, type and spacing tokens. Light by default; dark follows the system
+   unless the visitor picked a theme, which sets data-theme on <html>. */
+
+:root {
+	--paper: #eceef2;
+	--surface: #f8f9fb;
+	--surface-2: #e3e6eb;
+	--ink: #15171b;
+	--ink-2: #555b65;
+	--line: rgba(21, 23, 27, 0.14);
+	--line-strong: rgba(21, 23, 27, 0.32);
+	--accent: #f97316;
+	--accent-ink: #15171b;
+	--blue: #2563eb;
+	--blue-ink: #fff;
+	--sun: #facc15;
+	--track: rgba(21, 23, 27, 0.12);
+	--shadow: 0 1px 0 rgba(21, 23, 27, 0.06),
+		0 12px 32px -12px rgba(21, 23, 27, 0.22);
+	--focus: #2563eb;
+	--font: "Metropolis-Regular", system-ui, sans-serif;
+	--mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+	--space-1: 4px;
+	--space-2: 8px;
+	--space-3: 12px;
+	--space-4: 16px;
+	--space-5: 24px;
+	--space-6: 32px;
+	--space-7: 48px;
+	--space-8: 72px;
+	--space-9: 112px;
+	--radius-s: 10px;
+	--radius: 18px;
+	--radius-l: 28px;
+	--pill: 999px;
+	--ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+	--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+	--t-fast: 140ms;
+	--t: 220ms;
+	--gutter: clamp(16px, 4vw, 48px);
+	--max: 1320px;
+	--wght: 400;
+
+	color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		--paper: #111317;
+		--surface: #1a1d22;
+		--surface-2: #262a31;
+		--ink: #eef0f3;
+		--ink-2: #a9afb9;
+		--line: rgba(238, 240, 243, 0.14);
+		--line-strong: rgba(238, 240, 243, 0.34);
+		--accent: #fb8a3c;
+		--blue: #6b8cff;
+		--blue-ink: #0b1026;
+		--track: rgba(238, 240, 243, 0.16);
+		--shadow: 0 1px 0 rgba(0, 0, 0, 0.3),
+			0 16px 40px -16px rgba(0, 0, 0, 0.7);
+		--focus: #8ea6ff;
+
+		color-scheme: dark;
+	}
+}
+
+:root[data-theme="dark"] {
+	--paper: #111317;
+	--surface: #1a1d22;
+	--surface-2: #262a31;
+	--ink: #eef0f3;
+	--ink-2: #a9afb9;
+	--line: rgba(238, 240, 243, 0.14);
+	--line-strong: rgba(238, 240, 243, 0.34);
+	--accent: #fb8a3c;
+	--blue: #6b8cff;
+	--blue-ink: #0b1026;
+	--track: rgba(238, 240, 243, 0.16);
+	--shadow: 0 1px 0 rgba(0, 0, 0, 0.3), 0 16px 40px -16px rgba(0, 0, 0, 0.7);
+	--focus: #8ea6ff;
+
+	color-scheme: dark;
+}

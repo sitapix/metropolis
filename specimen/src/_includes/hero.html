@@ -1,0 +1,24 @@
+<section class="hero" aria-labelledby="hero-word">
+	<div class="hero-shapes" aria-hidden="true">
+		<span class="shape shape-sun"></span>
+		<span class="shape shape-half"></span>
+		<span class="shape shape-ring"></span>
+		<span class="shape shape-bar"></span>
+	</div>
+
+
+	{% comment %} Each letter carries its own weight; main.js swells the ones nearest the pointer. {% endcomment %}
+	<h1 class="hero-word" id="hero-word" aria-label="{{ content.hero }}">
+		{%- assign letters = content.hero | split: "" -%}
+		{%- for l in letters -%}<span class="hero-letter" aria-hidden="true">{{ l }}</span>{%- endfor -%}
+	</h1>
+
+	<p class="hero-tagline">{{ content.tagline }}</p>
+
+	<div class="hero-cta">
+		<a class="btn btn-primary btn-lg" href="#playground">Try it</a>
+		<a class="btn btn-ghost btn-lg" href="{{ site.releases }}">Download</a>
+	</div>
+
+
+</section>

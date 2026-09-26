@@ -1,3 +1,5 @@
 fontmake==3.12.1
 brotli==1.2.0
 uharfbuzz==0.56.0
+afdko==5.0.1
+ttfautohint-py==0.6.1

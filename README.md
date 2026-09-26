@@ -8,8 +8,9 @@ released into the public domain. This repository is a fork of
 fixes the parts of the release that were broken or missing, and ships the built
 fonts alongside the sources.
 
-Outlines are unchanged from upstream r11. Rendered line height and baseline are
-identical. What changed is metadata, structure, and the build.
+Upstream r11's outlines are unchanged, and rendered line height and baseline
+are identical. What changed is metadata, structure, the build, and the
+characters upstream never drew.
 
 - **Vertical metrics** that macOS does not override, so a line box is 1.21 em
   rather than the 1.2 em macOS substitutes for a font it reads as having none.
@@ -20,6 +21,11 @@ identical. What changed is metadata, structure, and the build.
 - **A populated STAT table**, including an `ital` axis linking roman to italic.
 - **OpenType features**: tabular figures, and a single-storey `a` that was
   already drawn but unreachable.
+- **The rest of Windows-1252**, plus Latvian Ļ ļ, Romanian Ș ș Ț ț, and the
+  no-break space that every `&nbsp;` on the web asks for.
+- **Style linking** that gives Regular an Italic on Windows, **licence and
+  designer names**, and installable embedding.
+- **Hinting**: ttfautohint for TrueType, `otfautohint` for CFF.
 - **TTF and WOFF2 outputs** in addition to OTF.
 
 [Changes from upstream r11](#changes-from-upstream-r11) covers each of these.
@@ -29,7 +35,7 @@ identical. What changed is metadata, structure, and the build.
   <img alt="Metropolis specimen: the nine weights of the variable font, matching italics, tabular figures, a single-storey a, and Latin accents." src="./documentation/specimen-light.svg">
 </picture>
 
-There is also an [interactive specimen](#specimen) with a weight slider.
+There is also an [interactive specimen](#specimen) to play with.
 
 ## Installation
 
@@ -47,9 +53,9 @@ variable file covers all nine weights:
 
 | file | size |
 |---|---|
-| `Metropolis[wght].woff2` | 51 KB |
-| `Metropolis-Italic[wght].woff2` | 55 KB |
-| any single static weight, e.g. `Metropolis-Regular.woff2` | 20–25 KB |
+| `Metropolis[wght].woff2` | 55 KB |
+| `Metropolis-Italic[wght].woff2` | 60 KB |
+| any single static weight, e.g. `Metropolis-Regular.woff2` | 27–33 KB |
 
 **On the desktop**, install the OTFs from `fonts/otf/`: double-click a file and
 confirm, or drag the folder into Font Book on macOS. Install the whole set for
@@ -102,7 +108,7 @@ Bold 700, ExtraBold 800, Black 900.
 |---|---|---|
 | `kern` | pair kerning | on by default |
 | `mark` | mark-to-base positioning | on by default |
-| `tnum` | tabular (fixed-width) figures | `font-variant-numeric: tabular-nums` |
+| `tnum` | tabular (fixed-width) figures and `+ − × ÷ = < > ±` | `font-variant-numeric: tabular-nums` |
 | `ss01` | single-storey `a` | `font-feature-settings: "ss01"` |
 | `salt`, `aalt` | the same `a`, for apps that offer stylistic alternates | application UI |
 
@@ -114,8 +120,11 @@ Bold 700, ExtraBold 800, Black 900.
 `ss01` carries a `featureNames` entry, so applications that list stylistic sets
 show it as "Single-storey a" rather than "Set 1".
 
-Absent: `frac`, `onum`, `smcp`. Each needs glyphs that do not exist in the
-source. `liga` is absent because `f` spans x 30–333 within a 344 advance, so
+U+2007 FIGURE SPACE has the tabular figure width, for padding a column.
+
+Absent: `frac`, `onum`, `smcp`. ½ ¼ ¾ and ¹ ² ³ exist as characters, but `frac`
+needs a full set of numerator and denominator figures that the source does not
+have. `liga` is absent because `f` spans x 30–333 within a 344 advance, so
 `fi` and `fl` do not collide. `zero` is absent because the Black counter is 248
 units across inside a 200-unit ring, and a slash heavy enough to read closes it.
 
@@ -133,13 +142,13 @@ units across inside a 200-unit ring, and a slash heavy enough to read closes it.
 | `documentation/` | the specimen image above, light and dark |
 
 `sources/` is upstream r11 as of this repository's first commit, plus the
-tabular figures.
+tabular figures and [the added characters](#changes-from-upstream-r11).
 
 | | |
 |---|---|
 | masters | Thin 100, Regular 400, Black 900, roman and italic |
 | instances | 9 per file |
-| glyphs | 339 |
+| glyphs | 373, of which 361 export and 333 are encoded |
 | UPM | 1000 |
 | kerning | 7381, 7523 and 6934 pairs, by roman master |
 
@@ -149,7 +158,8 @@ You only need this if you are changing the fonts. The outputs are committed.
 
 **Requirements:** [uv](https://docs.astral.sh/uv/) and Python 3.12. Versions
 are pinned in `requirements.txt` (fontmake 3.12.1, brotli 1.2.0, uharfbuzz
-0.56.0); CI builds on Ubuntu with the same pins. The specimen site additionally
+0.56.0, afdko 5.0.1 for `otfautohint`, ttfautohint-py 0.6.1); CI builds on
+Ubuntu with the same pins. The specimen site additionally
 needs [Bun](https://bun.sh).
 
 ```sh
@@ -167,12 +177,22 @@ intermediates.
 `scripts/check_fonts.py` runs over every built file and asserts: a 1210 line
 box, `typo` metrics matching `hhea`, win metrics containing `head.yMin` and
 `yMax`, `USE_TYPO_METRICS` set with OS/2 version 4 or higher, ascent plus
-descent not equal to the UPM, no single-valued `fvar` axis, a populated STAT
-table, and STAT carrying `ital`.
+descent not equal to the UPM, copyright, designer and licence names, `fsType`
+0, the Italic linked to Regular, full Windows-1252 plus Ļ ļ Ș ș Ț ț, no
+unreachable bracket glyphs in the static fonts, `latn` in GSUB, tabular math
+and figure space at the tabular figure width, hinting, no single-valued `fvar`
+axis, a populated STAT table, STAT carrying `ital`, and `fvar` instance names
+that agree with the font's own.
 
-`make variable` calls `scripts/postprocess_vf.py`, which writes the STAT axis
-values and the `ital` axis that fontmake omits, and `make webfonts` calls
-`scripts/make_webfonts.py`, which compresses the variable and static TTFs.
+`make static` and `make ttf` call `scripts/postprocess_static.py`, which drops
+the `cent` and `dollar` bracket alternates that a static instance cannot reach.
+`make static` then hints the CFF with `otfautohint` and re-subroutinises it
+with `cffsubr`; `make ttf` hints with ttfautohint through fontmake's
+`--autohint`. `make variable` calls `scripts/postprocess_vf.py`, which writes
+the STAT axis values and the `ital` axis that fontmake omits, names the `fvar`
+instances, and adds `gasp` and a smart-dropout `prep`, since ttfautohint cannot
+hint a variable font. `make webfonts` calls `scripts/make_webfonts.py`, which
+compresses the variable and static TTFs.
 
 `make specimen-image` calls `scripts/make_specimen_image.py`, which writes
 `documentation/specimen-{light,dark}.svg`. HarfBuzz shapes the text, so the
@@ -183,15 +203,17 @@ every outline is written out as a path, so the image needs no webfont.
 permissions are fixed, and timestamps come from `SOURCE_DATE_EPOCH` or the
 current commit, so building a tag twice produces the same bytes.
 
-`scripts/add_tabular_figures.py` is not part of `make`: it writes the `.tnum`
-glyphs into `sources/` rather than building from them. It has already been run
-and its output is committed. Run it again only after changing the figures, and
-commit the changed source with the rebuilt fonts.
+`scripts/extend_charset.py` and `scripts/add_tabular_figures.py` are not part
+of `make`: they write glyphs into `sources/` rather than building from them.
+Both have been run and their output is committed. Run them again, in that
+order, only after changing the glyphs they build from, and commit the changed
+sources with the rebuilt fonts.
 
 ## Specimen
 
-`specimen/` holds an interactive specimen: a weight slider, a dropdown of the
-nine named instances, an editable type tester, and the full character set.
+`specimen/` holds an interactive specimen: a type playground with weight, size,
+spacing, feature and colour controls and shareable links, the nine weights,
+live OpenType demos, a glyph inspector, and a searchable language list.
 
 It is published at **[sitapix.github.io/metropolis](https://sitapix.github.io/metropolis/)**
 on every push to `main` that touches `specimen/` or `fonts/webfonts/`.
@@ -262,6 +284,41 @@ follows components, because `nine` is a rotated `six` with no paths of its own.
 In the variable fonts, `cent` and `dollar` substitute via GSUB feature
 variations at `wght 700..900`, which is where the `rvrn` feature comes from.
 
+**Characters missing.** There was no U+00A0 no-break space, so every `&nbsp;`
+fell back to another font's space. Windows-1252 lacked
+¤ ¦ § ª ¬ ± ² ³ µ ¹ º ¼ ½ ¾ ƒ † ‡. U+00AD SOFT HYPHEN stays out on purpose: the
+renderer draws a hyphen at the break itself. OS/2 claimed Baltic and the font had Ģ Ķ Ņ Ŗ,
+but not Ļ ļ. Romanian had only the cedilla forms Ş ş Ţ ţ, although
+`commaaccentcomb` was in the font. `scripts/extend_charset.py` builds all of
+them from each master's own parts, so they interpolate: components where a
+glyph already has the shape (µ is `u` with a descender stem, ƒ is `f` over the
+tail of `j`, § is two `s`), and rectangles measured from `bar`, `plus` and
+`minus` where none does. The superiors, fractions, ordinals, § ¤ ƒ µ and the
+fraction slash are constructions rather than drawings, and carry a magenta
+label in Glyphs for review.
+
+**Italic not linked to Regular.** The Regular Italic instance was style-linked
+to "Regular", so its name1 was "Metropolis Regular" and Windows grouped
+Regular, Bold and Bold Italic with no Italic. It is now the "Italic" of
+"Metropolis", `Metropolis-Italic`, matching the variable font.
+
+**Names and embedding.** name IDs 0, 9, 13 and 14 were empty, and `fsType` 8
+restricted embedding in a public-domain font. The version stayed 11.000 with
+upstream's unique ID, so font caches took this fork for upstream; it is now
+12.000.
+
+**Unhinted.** The TrueType fonts had no instructions and no `gasp`, and the CFF
+had blue zones but no stem hints. The TrueType builds now also flatten nested
+components and decompose scaled ones, which hint badly, and the name tables
+drop the legacy Mac records.
+
+**Spacing.** `eogonek`, `edotbelow`, `Edotbelow`, italic `Agrave`, Thin
+`Ccedilla` and five more composites had advances up to 35 units off their base
+letter, so the same word set wider with an accent. Each now takes its base's
+advance. Strikeout was 20 units in every weight; it now matches the hyphen,
+from 36 in Thin to 158 in Black. Underline was 20 too, and is now one thickness across the
+family, 50 units, so mixed weights underline on one line.
+
 ## Contributing
 
 Issues and pull requests are welcome at
@@ -278,13 +335,16 @@ The two workflows are gated on the paths they actually depend on: a change to
 the site.
 
 If a change is meant to hold, add the assertion to `scripts/check_fonts.py`.
-The vertical metrics, the Windows clipping, the single-valued axis and the STAT
-table each have one, so CI fails if any of them regresses.
+Every fix above has one, so CI fails if any of them regresses. CI also keeps
+the committed fonts aside, rebuilds from a clean tree, and fails if
+`scripts/compare_fonts.py` finds any table that differs, so committed fonts
+cannot drift from the sources.
 
 ## Acknowledgements
 
 Metropolis was designed by [Chris Simpson](https://github.com/chrismsimpson).
-This fork changes no outlines; the drawing is entirely his.
+This fork changes none of his outlines. The characters it adds are built from
+his glyphs, and any of them that reads as his design is his.
 
 ## License
 

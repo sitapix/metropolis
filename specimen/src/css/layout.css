@@ -1,9 +1,0 @@
-main {
-	max-width: 90rem;
-	margin: 0 auto;
-	display: none;
-}
-
-.fonts-loaded main {
-	display: block;
-}

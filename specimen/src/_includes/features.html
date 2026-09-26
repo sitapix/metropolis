@@ -1,0 +1,54 @@
+<section class="section features" id="features" aria-labelledby="features-title">
+	<header class="section-head">
+		<h2 id="features-title">OpenType features</h2>
+	</header>
+
+	<div class="bento">
+		<article class="card card-ss01" data-demo="ss01">
+			<div class="card-head">
+				<h3>Single-storey a</h3>
+				<label class="switch"><input type="checkbox" /><span class="switch-track" aria-hidden="true"></span><span class="visually-hidden">Turn on ss01, the single-storey a</span><code>ss01</code></label>
+			</div>
+			<p class="card-glyph" aria-hidden="true">a</p>
+			<p class="card-sample">{{ content.ss01 }}</p>
+			<p class="card-note"><code>ss01</code> swaps in the single-storey <code>a</code>.</p>
+		</article>
+
+		<article class="card card-tnum" data-demo="tnum">
+			<div class="card-head">
+				<h3>Tabular figures</h3>
+				<label class="switch"><input type="checkbox" /><span class="switch-track" aria-hidden="true"></span><span class="visually-hidden">Turn on tnum, tabular figures</span><code>tnum</code></label>
+			</div>
+			<table class="ledger">
+				<caption class="visually-hidden">A small budget, to show figures lining up in columns</caption>
+				<tbody>
+					{% for r in content.tnumRows %}
+					<tr{% if forloop.last %} class="ledger-total"{% endif %}><th scope="row">{{ r[0] }}</th><td>${{ r[1] }}</td></tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			<p class="card-note">With <code>tnum</code> on, every figure takes the same width, and so do <code>+ − × =</code>.</p>
+		</article>
+
+		<article class="card card-bracket" data-demo="bracket">
+			<div class="card-head">
+				<h3>Dollar and cent</h3>
+				<output class="badge" for="bracket-wght">Full bar</output>
+			</div>
+			<p class="card-glyph card-glyph-money" style="--wght: 400">{{ content.bracket }}</p>
+			<div class="range">
+				<input type="range" id="bracket-wght" min="{{ axis.min }}" max="{{ axis.max }}" step="1" value="400" aria-label="Weight for the dollar and cent" />
+			</div>
+			<p class="card-note">From weight 700, the bars on <code>$</code> and <code>¢</code> split into two stubs so the counters stay open.</p>
+		</article>
+
+		<article class="card card-italic">
+			<div class="card-head"><h3>Italic</h3><span class="badge">11.75°</span></div>
+			<p class="card-pair">
+				<span class="{{ roman }}" style="--wght: 700">Roman</span>
+				<span class="{{ italic }}" style="--wght: 700">Italic</span>
+			</p>
+			<p class="card-note">Roman and italic are separate variable fonts.</p>
+		</article>
+	</div>
+</section>

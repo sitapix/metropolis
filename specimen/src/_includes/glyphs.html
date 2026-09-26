@@ -1,0 +1,54 @@
+<section class="section glyphs" id="glyphs" aria-labelledby="glyphs-title">
+	<header class="section-head">
+		<h2 id="glyphs-title">Glyphs</h2>
+		<p class="lede">Hover or focus a glyph to see it large. Click to copy it.</p>
+	</header>
+
+	<div class="g-filters chips" role="group" aria-label="Filter glyphs">
+		<button type="button" class="chip is-active" data-filter="all" aria-pressed="true">All</button>
+		<button type="button" class="chip" data-filter="upper" aria-pressed="false">Uppercase</button>
+		<button type="button" class="chip" data-filter="lower" aria-pressed="false">Lowercase</button>
+		<button type="button" class="chip" data-filter="number" aria-pressed="false">Numbers</button>
+		<button type="button" class="chip" data-filter="punctuation" aria-pressed="false">Punctuation</button>
+		<button type="button" class="chip" data-filter="symbol" aria-pressed="false">Symbols</button>
+		<button type="button" class="chip" data-filter="mark" aria-pressed="false">Accents</button>
+	</div>
+
+	<div class="g-layout">
+		<div class="g-grid {{ roman }}">
+			{% for set in fonts[roman].charset %}
+				{% if set.category == "Separator" %}{% continue %}{% endif %}
+				{% if set.category == "Letter" and set.subCategory == "Uppercase" %}
+					{% assign group = "upper" %}
+				{% elsif set.category == "Letter" %}
+					{% assign group = "lower" %}
+				{% else %}
+					{% assign group = set.category | downcase %}
+				{% endif %}
+				{% for char in set.chars %}
+				<button type="button" class="g-cell" data-group="{{ group }}" data-cp="{{ char }}" aria-label="U+{{ char }}">&#x{{ char }};</button>
+				{% endfor %}
+			{% endfor %}
+		</div>
+
+		<aside class="g-inspector {{ roman }}" aria-label="Glyph inspector">
+			<div class="g-stage" aria-hidden="true">
+				<span class="g-line g-line-asc" data-label="ascender"></span>
+				<span class="g-line g-line-cap" data-label="cap height"></span>
+				<span class="g-line g-line-x" data-label="x-height"></span>
+				<span class="g-line g-line-base" data-label="baseline"></span>
+				<span class="g-line g-line-desc" data-label="descender"></span>
+				<span class="g-big">A</span>
+			</div>
+			<p class="g-code"><span class="g-cp">U+0041</span></p>
+			<div class="control">
+				<div class="control-head"><label for="g-wght">Weight</label><output for="g-wght" class="out">400</output></div>
+				<div class="range"><input type="range" id="g-wght" min="{{ axis.min }}" max="{{ axis.max }}" step="1" value="400" /></div>
+			</div>
+			<div class="segmented" role="radiogroup" aria-label="Glyph style">
+				<label><input type="radio" name="g-style" value="{{ roman }}" checked /><span>Roman</span></label>
+				<label><input type="radio" name="g-style" value="{{ italic }}" /><span class="{{ italic }}">Italic</span></label>
+			</div>
+		</aside>
+	</div>
+</section>

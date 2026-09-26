@@ -1,0 +1,108 @@
+<section class="section playground" id="playground" aria-labelledby="pg-title">
+	<header class="section-head">
+		<h2 id="pg-title">Type tester</h2>
+		<p class="lede">Type in the box, then drag the weight or press Animate weight.</p>
+	</header>
+
+	<div class="pg">
+		<div class="pg-stage" data-scheme="paper">
+			<div class="pg-stage-bar">
+				<div class="chips" role="group" aria-label="Sample text">
+					{% for s in content.samples %}
+					<button type="button" class="chip{% if forloop.first %} is-active{% endif %}" data-sample="{{ forloop.index0 }}" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}">{{ s.label }}</button>
+					{% endfor %}
+				</div>
+				<p class="pg-readout" aria-hidden="true"><span class="pg-readout-num">400</span> <span class="pg-readout-name">Regular</span></p>
+			</div>
+			<div
+				class="pg-text {{ roman }}"
+				contenteditable="true"
+				spellcheck="false"
+				role="textbox"
+				aria-multiline="true"
+				aria-label="Type tester, editable"
+			>{{ content.samples[0].text }}</div>
+			<template id="samples">{% for s in content.samples %}<p>{{ s.text }}</p>{% endfor %}</template>
+		</div>
+
+		<form class="pg-controls" aria-label="Type controls" autocomplete="off">
+			<fieldset class="control control-weight">
+				<legend class="visually-hidden">Weight</legend>
+				<div class="control-head">
+					<label for="pg-wght">Weight</label>
+					<input type="number" class="num" id="pg-wght-num" min="{{ axis.min }}" max="{{ axis.max }}" step="1" value="{{ axis.default }}" aria-label="Weight value" />
+				</div>
+				<div class="range range-weight">
+					<input type="range" id="pg-wght" name="wght" min="{{ axis.min }}" max="{{ axis.max }}" step="1" value="{{ axis.default }}" />
+					<span class="range-bubble" aria-hidden="true"></span>
+				</div>
+				<div class="snaps" role="group" aria-label="Named weights">
+					{% for i in instances %}
+					<button type="button" class="snap" data-wght="{{ i.axes.wght }}" aria-label="{{ i.name }}, {{ i.axes.wght }}" aria-pressed="false">
+						<span class="snap-glyph" style="--wght: {{ i.axes.wght }}" aria-hidden="true">a</span>
+						<span class="snap-num" aria-hidden="true">{{ i.axes.wght }}</span>
+					</button>
+					{% endfor %}
+				</div>
+				<button type="button" class="btn btn-play" aria-pressed="false">
+					<svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"/></svg>
+					<svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 4.5h4v15h-4zM13.5 4.5h4v15h-4z"/></svg>
+					<span class="btn-play-label">Animate weight</span>
+				</button>
+			</fieldset>
+
+			<fieldset class="control">
+				<legend>Style</legend>
+				<div class="segmented" role="radiogroup" aria-label="Style">
+					<label><input type="radio" name="style" value="{{ roman }}" checked /><span>Roman</span></label>
+					<label><input type="radio" name="style" value="{{ italic }}" /><span class="{{ italic }}">Italic</span></label>
+				</div>
+			</fieldset>
+
+			<div class="control-grid">
+				<div class="control">
+					<div class="control-head"><label for="pg-size">Size</label><output for="pg-size" class="out" data-unit="px">45px</output></div>
+					<div class="range"><input type="range" id="pg-size" name="size" min="12" max="220" step="1" value="45" /></div>
+				</div>
+				<div class="control">
+					<div class="control-head"><label for="pg-leading">Line height</label><output for="pg-leading" class="out">1.1</output></div>
+					<div class="range"><input type="range" id="pg-leading" name="leading" min="0.8" max="2" step="0.05" value="1.1" /></div>
+				</div>
+				<div class="control">
+					<div class="control-head"><label for="pg-tracking">Letter spacing</label><output for="pg-tracking" class="out" data-unit="em">0em</output></div>
+					<div class="range"><input type="range" id="pg-tracking" name="tracking" min="-0.08" max="0.3" step="0.01" value="0" /></div>
+				</div>
+			</div>
+
+			<fieldset class="control">
+				<legend>Alignment</legend>
+				<div class="segmented segmented-icons" role="radiogroup" aria-label="Alignment">
+					<label title="Left"><input type="radio" name="align" value="left" checked aria-label="Align left" /><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18M3 10h12M3 15h18M3 20h12"/></svg></span></label>
+					<label title="Centre"><input type="radio" name="align" value="center" aria-label="Align centre" /><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18M6 10h12M3 15h18M6 20h12"/></svg></span></label>
+					<label title="Right"><input type="radio" name="align" value="right" aria-label="Align right" /><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18M9 10h12M3 15h18M9 20h12"/></svg></span></label>
+				</div>
+			</fieldset>
+
+			<fieldset class="control">
+				<legend>OpenType</legend>
+				<label class="switch"><input type="checkbox" name="ss01" /><span class="switch-track" aria-hidden="true"></span><span>Single-storey <span class="ss01-demo">a</span></span></label>
+				<label class="switch"><input type="checkbox" name="tnum" /><span class="switch-track" aria-hidden="true"></span><span>Tabular figures</span></label>
+			</fieldset>
+
+			<fieldset class="control">
+				<legend>Colours</legend>
+				<div class="swatches" role="radiogroup" aria-label="Colours">
+					<label title="Paper"><input type="radio" name="scheme" value="paper" checked aria-label="Paper" /><span class="swatch swatch-paper" aria-hidden="true">Aa</span></label>
+					<label title="Ink"><input type="radio" name="scheme" value="ink" aria-label="Ink" /><span class="swatch swatch-ink" aria-hidden="true">Aa</span></label>
+					<label title="Citrus"><input type="radio" name="scheme" value="citrus" aria-label="Citrus" /><span class="swatch swatch-citrus" aria-hidden="true">Aa</span></label>
+					<label title="Cobalt"><input type="radio" name="scheme" value="cobalt" aria-label="Cobalt" /><span class="swatch swatch-cobalt" aria-hidden="true">Aa</span></label>
+				</div>
+			</fieldset>
+
+			<div class="pg-actions">
+				<button type="button" class="btn btn-ghost btn-sm" data-action="reset">Reset</button>
+				<button type="button" class="btn btn-ghost btn-sm" data-action="share">Copy link</button>
+			</div>
+		</form>
+	</div>
+</section>

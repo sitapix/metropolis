@@ -4,9 +4,6 @@
   "workspaces": {
     "": {
       "name": "metropolis-specimen",
-      "dependencies": {
-        "fontfaceobserver": "^2.1.0",
-      },
       "devDependencies": {
         "@11ty/eleventy": "^0.9.0",
         "@babel/core": "^7.7.4",
@@ -939,8 +936,6 @@
     "flush-write-stream": ["flush-write-stream@1.1.1", "", { "dependencies": { "inherits": "^2.0.3", "readable-stream": "^2.3.6" } }, "sha512-3Z4XhFZ3992uIq0XOqb9AreonueSYphE6oYbpt5+3u06JWklbsPkNv3ZKkP9Bz/r+1MWCaMoSQ28P85+1Yc77w=="],
 
     "follow-redirects": ["follow-redirects@1.12.1", "", {}, "sha512-tmRv0AVuR7ZyouUHLeNSiO6pqulF7dYa3s19c6t+wz9LD69/uSzdMxJ2S91nTI9U3rt/IldxpzMOFejp6f0hjg=="],
-
-    "fontfaceobserver": ["fontfaceobserver@2.1.0", "", {}, "sha512-ReOsO2F66jUa0jmv2nlM/s1MiutJx/srhAe2+TE8dJCMi02ZZOcCTxTCQFr3Yet+uODUtnr4Mewg+tNQ+4V1Ng=="],
 
     "fontkit": ["fontkit@1.8.1", "", { "dependencies": { "babel-runtime": "^6.26.0", "brfs": "^2.0.0", "brotli": "^1.2.0", "browserify-optional": "^1.0.1", "clone": "^1.0.4", "deep-equal": "^1.0.0", "dfa": "^1.2.0", "restructure": "^0.5.3", "tiny-inflate": "^1.0.2", "unicode-properties": "^1.2.2", "unicode-trie": "^0.3.0" } }, "sha512-BsNCjDoYRxmNWFdAuK1y9bQt+igIxGtTC9u/jSFjR9MKhmI00rP1fwSvERt+5ddE82544l0XH5mzXozQVUy2Tw=="],
 

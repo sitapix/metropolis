@@ -1,0 +1,202 @@
+/* Reset, page type, and the pieces every section shares. */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+
+	/* Weight is a variation, not font-weight: set --wght on any element. */
+	font-variation-settings: "wght" var(--wght);
+}
+
+html {
+	scroll-behavior: smooth;
+	scroll-padding-top: 88px;
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--font);
+	font-size: 1.0625rem;
+	line-height: 1.55;
+	-webkit-font-smoothing: antialiased;
+	transition: background-color var(--t) ease, color var(--t) ease;
+}
+
+h1,
+h2,
+h3,
+p,
+ol,
+ul,
+figure {
+	margin: 0;
+}
+
+ol,
+ul {
+	padding: 0;
+	list-style: none;
+}
+
+a {
+	color: inherit;
+	text-decoration-thickness: 0.08em;
+	text-underline-offset: 0.18em;
+}
+
+button,
+input,
+select {
+	font: inherit;
+	color: inherit;
+}
+
+button {
+	cursor: pointer;
+}
+
+svg {
+	width: 1.25em;
+	height: 1.25em;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+code,
+pre {
+	font-family: var(--mono);
+	font-variation-settings: normal;
+}
+
+code {
+	font-size: 0.88em;
+	padding: 0.1em 0.35em;
+	border-radius: 6px;
+	background: var(--surface-2);
+}
+
+:focus-visible {
+	outline: 3px solid var(--focus);
+	outline-offset: 3px;
+	border-radius: 6px;
+}
+
+::selection {
+	background: var(--accent);
+	color: var(--accent-ink);
+}
+
+.visually-hidden {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.skip-link {
+	position: absolute;
+	left: var(--space-4);
+	top: -100px;
+	z-index: 100;
+	padding: var(--space-3) var(--space-4);
+	border-radius: var(--pill);
+	background: var(--ink);
+	color: var(--paper);
+
+	--wght: 600;
+}
+
+.skip-link:focus {
+	top: var(--space-4);
+}
+
+/* Sections */
+
+.section {
+	max-width: var(--max);
+	margin: 0 auto;
+	padding: var(--space-9) var(--gutter) 0;
+}
+
+.section-head {
+	display: grid;
+	gap: var(--space-3);
+	margin-bottom: var(--space-7);
+	max-width: 760px;
+}
+
+.section-head-row {
+	max-width: none;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: var(--space-5);
+}
+
+.section-head h2 {
+	font-size: clamp(2.2rem, 5.5vw, 4.25rem);
+	line-height: 1;
+	letter-spacing: -0.02em;
+
+	--wght: 800;
+}
+
+.lede {
+	text-wrap: pretty;
+	font-size: 1.2rem;
+	color: var(--ink-2);
+	max-width: 52ch;
+}
+
+/* Toast */
+
+.toast {
+	position: fixed;
+	left: 50%;
+	bottom: var(--space-5);
+	z-index: 90;
+	padding: var(--space-3) var(--space-5);
+	border-radius: var(--pill);
+	background: var(--ink);
+	color: var(--paper);
+	box-shadow: var(--shadow);
+	transform: translate(-50%, 200%);
+	visibility: hidden;
+	transition: transform var(--t) var(--ease-out),
+		visibility 0s linear var(--t);
+
+	--wght: 600;
+
+	pointer-events: none;
+}
+
+.toast.is-shown {
+	transform: translate(-50%, 0);
+	visibility: visible;
+	transition: transform var(--t) var(--ease-out), visibility 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	*,
+	*::before,
+	*::after {
+		transition-duration: 1ms !important;
+		animation-duration: 1ms !important;
+		animation-iteration-count: 1 !important;
+	}
+}

@@ -17,6 +17,10 @@ module.exports = {
 			}
 		],
 		indentation: "tab",
+		// stylelint 12 predates aspect-ratio, which every current browser has.
+		"property-no-unknown": [true, { ignoreProperties: ["aspect-ratio"] }],
+		// Component rules are grouped by component, not sorted by specificity.
+		"no-descending-specificity": null,
 		"selector-pseudo-class-no-unknown": [
 			true,
 			{

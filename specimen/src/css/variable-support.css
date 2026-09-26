@@ -1,9 +1,0 @@
-.variable-support-message {
-	display: block;
-}
-
-@supports (font-variation-settings: normal) {
-	.variable-support-message {
-		display: none;
-	}
-}

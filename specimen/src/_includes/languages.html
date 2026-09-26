@@ -1,0 +1,17 @@
+{% assign langs = site.language | remove: "." | split: ", " %}
+<section class="section languages" id="languages" aria-labelledby="lang-title">
+	<header class="section-head section-head-row">
+		<div>
+			<h2 id="lang-title">{{ langs.size }} languages</h2>
+		</div>
+		<div class="lang-search">
+			<label for="lang-q">Search languages</label>
+			<input type="search" id="lang-q" placeholder="Polish, Welsh, Latvian…" aria-describedby="lang-result" />
+			<p id="lang-result" class="lang-result" aria-live="polite"></p>
+		</div>
+	</header>
+	<ul class="lang-list is-collapsed" id="lang-list">
+		{% for l in langs %}<li>{{ l }}</li>{% endfor %}
+	</ul>
+	<button type="button" class="btn btn-ghost lang-more" aria-controls="lang-list" aria-expanded="false">Show all {{ langs.size }}</button>
+</section>

@@ -1,6 +1,9 @@
-"""Pack the built fonts into release archives.
+"""Pack the built fonts into the release archive.
 
-Archives are reproducible: entries are sorted, permissions are fixed, and every
+One zip with every format in its own folder, the layout most open-source
+families ship (Inter, JetBrains Mono, Geist, Fira Code, Cascadia Code).
+
+The archive is reproducible: entries are sorted, permissions are fixed, and every
 timestamp comes from SOURCE_DATE_EPOCH or the current commit, so building the
 same tag twice produces the same bytes.
 """
@@ -12,12 +15,10 @@ import zipfile
 
 OUT = "dist"
 
-# name -> the paths each archive carries.
+# name suffix -> the paths the archive carries.
 ARCHIVES = {
     "": ["fonts/otf", "fonts/ttf", "fonts/variable", "fonts/webfonts",
          "README.md", "UNLICENSE"],
-    "-desktop": ["fonts/otf", "README.md", "UNLICENSE"],
-    "-web": ["fonts/webfonts", "README.md", "UNLICENSE"],
 }
 
 

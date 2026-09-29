@@ -148,6 +148,10 @@
 	animation: drift 14s ease-in-out infinite alternate;
 }
 
+.hero.is-paused .shape {
+	animation-play-state: paused;
+}
+
 .shape-sun {
 	top: -4%;
 	right: -3%;
@@ -260,13 +264,6 @@
 	justify-content: center;
 	gap: var(--space-3);
 }
-
-
-
-
-
-
-
 
 /* Playground */
 
@@ -837,6 +834,21 @@
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
 	gap: 6px;
+
+	/* Make room for enlarged glyphs and focus rings inside paint containment. */
+	padding: 10px;
+	margin: -10px;
+
+	/* Keep every glyph searchable and focusable, but defer its layout and paint
+	   until the grid approaches the viewport. Remember its size after rendering. */
+	content-visibility: auto;
+	contain-intrinsic-height: auto 4800px;
+}
+
+@media (min-width: 700px) {
+	.g-grid {
+		contain-intrinsic-height: auto 1800px;
+	}
 }
 
 .g-cell {
@@ -961,7 +973,6 @@
 }
 
 /* Languages */
-
 
 .lang-search {
 	display: grid;

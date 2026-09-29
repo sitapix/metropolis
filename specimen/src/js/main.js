@@ -137,9 +137,10 @@ const letters = $$(".hero-letter");
 if (heroWord && letters.length) {
 	const n = letters.length;
 	const current = letters.map(() => 400);
+	let pointerX = null;
 	let focus = null; // pointer position in letter units, or null when idle
 	let lastMove = 0;
-	let visible = true;
+	let visible = !("IntersectionObserver" in window);
 	let raf = 0;
 
 	const targetFor = (i, t) => {
@@ -156,37 +157,54 @@ if (heroWord && letters.length) {
 
 	const frame = t => {
 		raf = 0;
-		if (focus !== null && t - lastMove > 2500) focus = null;
+		if (!visible || document.hidden) return;
+		if (pointerX !== null && t - lastMove > 2500) pointerX = null;
+		if (pointerX !== null) {
+			// Read geometry once per frame, before changing any letter weights.
+			const r = heroWord.getBoundingClientRect();
+			focus = clamp((pointerX - r.left) / r.width, 0, 1) * n;
+		} else focus = null;
 		letters.forEach((el, i) => {
 			const target = targetFor(i, t);
 			current[i] +=
 				(target - current[i]) * (reduceMotion.matches ? 1 : 0.14);
 			el.style.setProperty("--wght", current[i].toFixed(1));
 		});
-		if (visible) raf = requestAnimationFrame(frame);
+		if (!reduceMotion.matches) start();
 	};
 
 	const start = () => {
-		if (!raf) raf = requestAnimationFrame(frame);
+		if (visible && !document.hidden && !raf)
+			raf = requestAnimationFrame(frame);
+	};
+	const syncAnimation = () => {
+		cancelAnimationFrame(raf);
+		raf = 0;
+		heroWord
+			.closest(".hero")
+			.classList.toggle("is-paused", !visible || document.hidden);
+		start();
 	};
 
 	heroWord.addEventListener("pointermove", e => {
-		const r = heroWord.getBoundingClientRect();
-		focus = clamp((e.clientX - r.left) / r.width, 0, 1) * n;
+		pointerX = e.clientX;
 		lastMove = performance.now();
 		start();
 	});
 	heroWord.addEventListener("pointerleave", () => {
-		focus = null;
+		pointerX = null;
+		start();
 	});
+	document.addEventListener("visibilitychange", syncAnimation);
+	reduceMotion.addListener(syncAnimation);
 
 	if ("IntersectionObserver" in window) {
 		new IntersectionObserver(([e]) => {
 			visible = e.isIntersecting;
-			if (visible) start();
+			syncAnimation();
 		}).observe(heroWord);
 	}
-	start();
+	syncAnimation();
 }
 
 /* Playground -------------------------------------------------------------- */
@@ -223,9 +241,28 @@ const setRadio = (name, value) => {
 	if (input) input.checked = true;
 };
 
-const render = () => {
+let renderedWeight;
+const renderWeight = () => {
+	if (renderedWeight === state.wght) return;
+	renderedWeight = state.wght;
 	const w = Math.round(state.wght);
 	text.style.setProperty("--wght", state.wght);
+	wght.value = state.wght;
+	if (document.activeElement !== wghtNum) wghtNum.value = w;
+	const name = weightName(w);
+	wght.setAttribute("aria-valuetext", `${w}, ${name.replace("≈", "near")}`);
+	syncRange(wght);
+	readNum.textContent = w;
+	if (readName.textContent !== name) readName.textContent = name;
+	for (const b of snapButtons) {
+		const pressed = String(Number(b.dataset.wght) === w);
+		if (b.getAttribute("aria-pressed") !== pressed)
+			b.setAttribute("aria-pressed", pressed);
+	}
+};
+
+const render = () => {
+	renderWeight();
 	text.style.setProperty("--size", `${state.size}px`);
 	text.style.setProperty("--leading", state.leading);
 	text.style.setProperty("--tracking", `${state.tracking}em`);
@@ -235,16 +272,6 @@ const render = () => {
 	text.classList.toggle("ss01", state.ss01);
 	text.classList.toggle("tnum", state.tnum);
 	stage.dataset.scheme = state.scheme;
-
-	wght.value = state.wght;
-	if (document.activeElement !== wghtNum) wghtNum.value = w;
-	const name = weightName(w);
-	wght.setAttribute("aria-valuetext", `${w}, ${name.replace("≈", "near")}`);
-	syncRange(wght);
-	readNum.textContent = w;
-	readName.textContent = name;
-	for (const b of snapButtons)
-		b.setAttribute("aria-pressed", String(Number(b.dataset.wght) === w));
 
 	for (const [key, unit] of [
 		["size", "px"],
@@ -339,9 +366,25 @@ const update = patch => {
 
 let playing = false;
 let playRaf = 0;
+let playVisible = true;
+let playTick;
+const syncPlay = () => {
+	cancelAnimationFrame(playRaf);
+	playRaf = 0;
+	if (playing && playVisible && !document.hidden)
+		playRaf = requestAnimationFrame(playTick);
+};
+document.addEventListener("visibilitychange", syncPlay);
+if ("IntersectionObserver" in window) {
+	new IntersectionObserver(([e]) => {
+		playVisible = e.isIntersecting;
+		syncPlay();
+	}).observe(stage);
+}
 const stopPlay = () => {
 	playing = false;
 	cancelAnimationFrame(playRaf);
+	playRaf = 0;
 	playBtn.setAttribute("aria-pressed", "false");
 	$(".btn-play-label", playBtn).textContent = "Animate weight";
 };
@@ -355,16 +398,17 @@ const startPlay = () => {
 	const start =
 		performance.now() -
 		Math.asin(((state.wght - min) / (max - min)) * 2 - 1) * 1100;
-	const tick = t => {
-		if (!playing) return;
+	playTick = t => {
+		playRaf = 0;
+		if (!playing || !playVisible || document.hidden) return;
 		const phase = (t - start) / 1100;
 		state.wght = Math.round(
 			min + (max - min) * (Math.sin(phase) * 0.5 + 0.5)
 		);
-		render();
-		playRaf = requestAnimationFrame(tick);
+		renderWeight();
+		playRaf = requestAnimationFrame(playTick);
 	};
-	playRaf = requestAnimationFrame(tick);
+	syncPlay();
 };
 playBtn.addEventListener("click", () => {
 	if (playing) {
@@ -605,10 +649,13 @@ if ("IntersectionObserver" in window && !reduceMotion.matches) {
 		},
 		{ rootMargin: "0px 0px -10% 0px" }
 	);
-	for (const el of $$(".section, .get")) {
-		if (el.getBoundingClientRect().top > window.innerHeight) {
-			el.classList.add("reveal");
-			io.observe(el);
-		}
+	// Measure all sections before adding classes, so writes cannot force the
+	// next section's geometry read to recalculate style and layout.
+	const belowViewport = $$(".section, .get").filter(
+		el => el.getBoundingClientRect().top > window.innerHeight
+	);
+	for (const el of belowViewport) {
+		el.classList.add("reveal");
+		io.observe(el);
 	}
 }

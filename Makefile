@@ -2,7 +2,7 @@ VENV := .venv/bin
 ROMAN  := sources/Metropolis.glyphs
 ITALIC := sources/Metropolis-Italic.glyphs
 
-.PHONY: all static ttf variable webfonts specimen specimen-image dist check clean venv
+.PHONY: all static ttf variable webfonts specimen specimen-image social-preview dist check clean venv
 
 all: static ttf variable webfonts
 
@@ -41,6 +41,10 @@ webfonts:
 
 specimen-image:
 	$(VENV)/python scripts/make_specimen_image.py
+
+# Optional: librsvg and ImageMagick export the GitHub upload.
+social-preview: specimen-image
+	rsvg-convert --width 2560 --height 1280 documentation/social-preview.svg | magick png:- -quality 92 -strip documentation/social-preview.jpg
 
 specimen:
 	@mkdir -p specimen/src/fonts

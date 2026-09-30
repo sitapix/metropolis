@@ -1,9 +1,10 @@
-"""Render the README specimen as SVG, in a light and a dark ink palette.
+"""Render the README cover, GitHub card and detailed specimens as SVG.
 
 HarfBuzz shapes the text, so the OpenType features shown are the font's own
 rather than a mock-up, and every outline is written out as a path, so the image
 carries no webfont and renders identically wherever SVG does.
 """
+import base64
 import os
 from fontTools.pens.boundsPen import BoundsPen
 from fontTools.pens.svgPathPen import SVGPathPen
@@ -13,6 +14,7 @@ import uharfbuzz as hb
 ROMAN = "fonts/variable/Metropolis[wght].ttf"
 ITALIC = "fonts/variable/Metropolis-Italic[wght].ttf"
 OUT = "documentation"
+PHOTO = os.path.join(OUT, "cover-city.jpg")
 
 WEIGHTS = [
     (100, "Thin"), (200, "ExtraLight"), (300, "Light"), (400, "Regular"),
@@ -87,7 +89,7 @@ class Renderer:
         scale = size / self.upem
         pen_x = 0
         for info, pos in zip(buf.glyph_infos, buf.glyph_positions):
-            svg = SVGPathPen(None, ntos=lambda v: f"{v:.1f}")
+            svg = SVGPathPen(None, ntos=lambda v: f"{v:.3f}")
             font.draw_glyph_with_pen(
                 info.codepoint,
                 TransformPen(
@@ -206,7 +208,7 @@ def build(palette):
         r.draw("aaa abcdefg", right + 84, y, FEATURE, ink, features=features)
         y += 60
 
-    rule = r.heading("LATIN, 263 LANGUAGES", right, y + 26, RIGHT_COL, palette)
+    rule = r.heading("LATIN EXTENDED", right, y + 26, RIGHT_COL, palette)
     y = r.baseline_after(rule, CITIES[0], CITY, weight=350)
     for line in CITIES:
         r.draw(line, right, y, CITY, ink, weight=350)
@@ -228,12 +230,49 @@ def build(palette):
     )
 
 
+def build_cover(width, height):
+    """Set the font name over a self-contained photographic background."""
+    r = Renderer()
+    canvas_width = 1280
+    canvas_height = height * canvas_width / width
+    with open(PHOTO, "rb") as f:
+        photo = base64.b64encode(f.read()).decode("ascii")
+    r.paths.append(
+        f'<image width="1280" height="{canvas_height}" '
+        f'preserveAspectRatio="xMidYMid slice" href="data:image/jpeg;base64,{photo}"/>'
+    )
+    r.paths.append(
+        f'<rect width="1280" height="{canvas_height}" fill="#000" opacity="0.40"/>'
+    )
+    text, size, weight = "Metropolis", 170, 500
+    text_width = r.width(text, size, weight=weight)
+    baseline = (canvas_height + r.ink_top(text, size, weight=weight)) / 2
+    r.draw(text, (canvas_width - text_width) / 2, baseline, size, "#ffffff", weight=weight)
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+        f'viewBox="0 0 {canvas_width} {canvas_height}" role="img" '
+        'aria-labelledby="title desc">\n'
+        '<title id="title">Metropolis by Chris Simpson</title>\n'
+        '<desc id="desc">Metropolis in white, centered over a city photograph '
+        'with sunlit skyscrapers and deep shadows.</desc>\n'
+        + "\n".join(r.paths) + "\n</svg>\n"
+    )
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     for name, palette in PALETTES.items():
         path = os.path.join(OUT, f"specimen-{name}.svg")
         with open(path, "w") as f:
             f.write(build(palette))
+        print(f"  {path}  {os.path.getsize(path) / 1024:.0f}K")
+    for filename, width, height in (
+        ("specimen.svg", 760, 506),
+        ("social-preview.svg", 1280, 640),
+    ):
+        path = os.path.join(OUT, filename)
+        with open(path, "w") as f:
+            f.write(build_cover(width, height))
         print(f"  {path}  {os.path.getsize(path) / 1024:.0f}K")
 
 

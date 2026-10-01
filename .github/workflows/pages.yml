@@ -2,63 +2,104 @@ name: specimen
 
 on:
   push:
-    branches: [main]
+    branches: [main, "codex/ci-*"]
     paths:
       - "specimen/**"
-      - "fonts/webfonts/**"
+      - "fonts/webfonts/*wght*.woff2"
+      - "make/specimen.mk"
+      - "Makefile"
+      - ".bun-version"
+      - "scripts/ci_changes.py"
+      - "tests/**"
       - ".github/workflows/pages.yml"
   pull_request:
     paths:
       - "specimen/**"
-      - "fonts/webfonts/**"
+      - "fonts/webfonts/*wght*.woff2"
+      - "make/specimen.mk"
+      - "Makefile"
+      - ".bun-version"
+      - "scripts/ci_changes.py"
+      - "tests/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
-# Supersede a running build when a branch is pushed again, but never cancel a
-# run on main out from under an in-flight deployment.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+permissions:
+  contents: read
 
 jobs:
-  # Runs on pull requests too, so a change that breaks the site fails the PR
-  # rather than the deployment.
-  build:
-    runs-on: ubuntu-latest
+  changes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    outputs:
+      site: ${{ steps.changes.outputs.site }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@v7.0.1
         with:
-          bun-version: latest
+          fetch-depth: 0
+      - id: changes
+        run: python3 scripts/ci_changes.py
 
+  build:
+    needs: changes
+    if: needs.changes.outputs.site == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: read
+    concurrency:
+      group: specimen-build-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: oven-sh/setup-bun@v2.2.0
+        id: bun
+        with:
+          bun-version-file: .bun-version
       - name: Cache bun packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6.1.0
         with:
           path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('specimen/bun.lock') }}
-          restore-keys: bun-${{ runner.os }}-
-
-      # The webfonts are committed, so the site builds without fontmake.
+          key: bun-${{ runner.os }}-${{ runner.arch }}-${{ steps.bun.outputs.bun-version }}-${{ hashFiles('specimen/bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-${{ runner.arch }}-${{ steps.bun.outputs.bun-version }}-
       - name: Build
         run: make specimen
-
-      - uses: actions/configure-pages@v5
-        if: github.ref == 'refs/heads/main'
-      - uses: actions/upload-pages-artifact@v3
-        if: github.ref == 'refs/heads/main'
+      - uses: actions/configure-pages@v6.0.0
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+      - uses: actions/upload-pages-artifact@v5.0.0
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         with:
           path: specimen/_site
+          retention-days: 1
 
   deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # Cancel obsolete builds, but let an active Pages deployment finish.
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Skip a superseded deployment
+        id: current
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          latest=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')
+          python3 scripts/ci_changes.py --site-current "$latest"
       - id: deployment
-        uses: actions/deploy-pages@v4
+        if: steps.current.outputs.deploy == 'true'
+        uses: actions/deploy-pages@v5.0.1

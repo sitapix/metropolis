@@ -1,85 +1,112 @@
 name: build
 
-# Only the inputs to the fonts. A change to the specimen, the README or the
-# documentation images does not need an 82-second fontmake run.
 on:
   push:
-    branches: [main]
-    paths:
-      - "sources/**"
-      - "scripts/**"
-      - "fonts/**"
-      - "documentation/**"
-      - "Makefile"
-      - "requirements.txt"
-      - ".github/workflows/build.yml"
+    branches: [main, "codex/ci-*"]
   pull_request:
-    paths:
-      - "sources/**"
-      - "scripts/**"
-      - "fonts/**"
-      - "documentation/**"
-      - "Makefile"
-      - "requirements.txt"
-      - ".github/workflows/build.yml"
   workflow_dispatch:
 
-# Supersede a running build when a branch is pushed again, but never abandon a
-# run on main -- that one produces the artifact.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+permissions:
+  contents: read
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  changes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    outputs:
+      fonts: ${{ steps.changes.outputs.fonts }}
+      rebuild: ${{ steps.changes.outputs.rebuild }}
+      artwork: ${{ steps.changes.outputs.artwork }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7.0.1
         with:
-          enable-cache: true
-          cache-dependency-glob: requirements.txt
+          fetch-depth: 0
+      - name: Test CI scope and Python syntax
+        run: |
+          python3 -m unittest discover -s tests -v
+          python3 -m compileall -q scripts
+      - id: changes
+        name: Select checks from changed inputs
+        run: python3 scripts/ci_changes.py
 
+  build:
+    needs: changes
+    if: needs.changes.outputs.fonts == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    concurrency:
+      group: fonts-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: "requirements*.txt"
+          cache-suffix: fonts
       - name: Install toolchain
+        env:
+          REBUILD: ${{ needs.changes.outputs.rebuild }}
         run: |
           uv venv
-          uv pip install -r requirements.txt
-
-      # The committed binaries are what people download, so they are checked
-      # before anything overwrites them.
+          if [ "$REBUILD" = true ]; then
+            uv pip install -r requirements.txt
+          else
+            uv pip install -r requirements-check.txt
+          fi
       - name: Check committed fonts
         run: make check
-
-      # Runs against the committed fonts, so it is comparing like with like.
-      # `git status` rather than `git diff`, so a newly generated file that
-      # nobody committed is caught too.
-      - name: Check the README specimen is current
-        run: |
-          make specimen-image
-          if [ -n "$(git status --porcelain -- documentation/)" ]; then
-            echo "documentation/ is stale. Run 'make specimen-image' and commit."
-            git status --short -- documentation/
-            exit 1
-          fi
-
-      # Set the committed fonts aside so the fresh build can be compared with them.
       - name: Keep committed fonts
+        if: needs.changes.outputs.rebuild == 'true'
         run: cp -R fonts "$RUNNER_TEMP/committed-fonts"
-
-      # `make clean` first, so a font the sources no longer produce is not
-      # left behind looking current.
       - name: Build from source
+        if: needs.changes.outputs.rebuild == 'true'
         run: |
           make clean
           make all
-
       - name: Check fresh build
+        if: needs.changes.outputs.rebuild == 'true'
         run: make check
-
       - name: Check committed fonts match the sources
+        if: needs.changes.outputs.rebuild == 'true'
         run: .venv/bin/python scripts/compare_fonts.py "$RUNNER_TEMP/committed-fonts" fonts
-
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.1
+        if: needs.changes.outputs.rebuild == 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         with:
           name: fonts
           path: fonts/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+
+  artwork:
+    needs: changes
+    if: needs.changes.outputs.artwork == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    concurrency:
+      group: artwork-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: |
+            requirements-check.txt
+            requirements-artwork.txt
+          cache-suffix: artwork
+      - name: Install artwork dependencies
+        run: |
+          uv venv
+          uv pip install -r requirements-artwork.txt
+      - name: Check the SVG artwork is current
+        run: |
+          make specimen-image
+          if [ -n "$(git status --porcelain -- documentation/)" ]; then
+            echo "Artwork is stale. Run 'make specimen-image' and commit."
+            git status --short -- documentation/
+            exit 1
+          fi

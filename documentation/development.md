@@ -61,7 +61,9 @@ Open `localhost:8080` to work on the site. The build copies the variable WOFF2s
 from `fonts/webfonts/` into `specimen/src/fonts/`.
 
 The site workflow publishes to [GitHub Pages](https://sitapix.github.io/metropolis/)
-after pushes to `main` that affect `specimen/` or `fonts/webfonts/`.
+after pushes to `main` that change the site, its build recipe, or its two variable
+WOFF2s. It skips specimen documentation and static webfonts. `.bun-version`
+pins Bun for CI; the package cache follows that version and `specimen/bun.lock`.
 The [specimen README](../specimen/README.md) describes the changes to Specimen
 Builder, including fontkit's handling of default variable font instance names.
 
@@ -99,7 +101,18 @@ Before submitting font changes, run `make && make check` and commit the rebuilt
 outputs. Run `make specimen-image` after editing the fonts or artwork renderer;
 run `make social-preview` to update the upload image.
 
-CI checks the committed fonts, regenerates the SVGs and rejects artwork drift.
-It then rebuilds the fonts and uses `compare_fonts.py` to compare their tables
-with the committed files. Add an assertion to `check_fonts.py` for a font fix
-that needs a regression check.
+CI selects jobs from the complete Git diff. Cover edits run artwork checks;
+prose edits run only the scope tests. A change to font sources, binaries, build
+scripts or dependencies runs validation, a fresh build and table comparison.
+Editing `check_fonts.py` runs validation without rebuilding. Manual runs perform
+all checks. Font and artwork jobs run in parallel when both apply.
+
+The recipes in `make/fonts.mk`, `make/artwork.mk` and `make/specimen.mk` keep
+their CI scopes separate. Artwork installs `requirements-artwork.txt`; font
+validation alone installs `requirements-check.txt`. CI cancels superseded
+builds when their inputs change, lets active Pages deployments finish and skips
+queued deployments when newer site inputs exist. CI uses Ubuntu 24.04 and
+Python 3.12. Font artifacts expire after seven days.
+
+Run `python3 -m unittest discover -s tests -v` after changing CI scope rules.
+Add an assertion to `check_fonts.py` for a font fix that needs a regression check.
